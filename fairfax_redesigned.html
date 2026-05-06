@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fairfax County Housing Policy Library</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;500;600;700&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Core palette */
+  --navy:    #1a2e4a;
+  --navy-mid:#2c4a6e;
+  --blue:    #1b5e8c;
+  --sky:     #e8f2fa;
+  --cream:   #faf9f7;
+  --paper:   #ffffff;
+  --border:  #dde2ea;
+  --muted:   #6b7a8d;
+  --ink:     #1a2332;
+
+  /* Status colours — WCAG AA on white */
+  --s-active:     #0a7040;
+  --s-active-bg:  #e6f5ef;
+  --s-emerging:   #1b5e8c;
+  --s-emerging-bg:#e8f2fa;
+  --s-partial:    #8a5c00;
+  --s-partial-bg: #fef7e0;
+  --s-not:        #374151;
+  --s-not-bg:     #f3f4f6;
+  --s-blocked:    #9b1c1c;
+  --s-blocked-bg: #fde8e8;
+
+  /* Category colours */
+  --cat-rz:   #1b5e8c;
+  --cat-fn:   #0a7040;
+  --cat-pres: #6d28d9;
+  --cat-tr:   #b45309;
+  --cat-ad:   #9b1c1c;
+  --cat-land: #065f46;
+  --cat-proc: #374151;
+  --cat-home: #c2410c;
+
+  --radius: 8px;
+  --shadow: 0 1px 4px rgba(0,0,0,.07), 0 4px 16px rgba(0,0,0,.05);
+  --shadow-hover: 0 2px 8px rgba(0,0,0,.1), 0 8px 24px rgba(0,0,0,.08);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Source Sans 3', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ─── TOP BAR ─────────────────────────────────────────────── */
+.topbar {
+  background: var(--navy);
+  padding: 0 28px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  height: 52px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  border-bottom: 3px solid var(--blue);
+}
+
+.topbar-brand {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 15px;
+  color: white;
+  white-space: nowrap;
+  font-weight: 400;
+}
+.topbar-brand strong { font-weight: 700; color: #7ec8f0; }
+
+.topbar-search {
+  flex: 1;
+  max-width: 440px;
+  position: relative;
+}
+.topbar-search input {
+  width: 100%;
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.2);
+  color: white;
+  padding: 7px 14px 7px 36px;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 14px;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color .2s, background .2s;
+}
+.topbar-search input::placeholder { color: rgba(255,255,255,.4); }
+.topbar-search input:focus { border-color: #7ec8f0; background: rgba(255,255,255,.15); }
+.search-icon {
+  position: absolute;
+  left: 11px; top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255,255,255,.4);
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.topbar-counts {
+  margin-left: auto;
+  display: flex;
+  gap: 20px;
+  flex-shrink: 0;
+}
+.topbar-stat { text-align: center; }
+.topbar-stat .n { font-family: 'Libre Baskerville', serif; font-size: 18px; color: #7ec8f0; display: block; line-height: 1; }
+.topbar-stat .l { font-size: 10px; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: .07em; }
+
+/* ─── TAB NAV ─────────────────────────────────────────────── */
+.tabnav {
+  background: var(--paper);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 0;
+  padding: 0 28px;
+  position: sticky;
+  top: 52px;
+  z-index: 190;
+}
+.tabnav-btn {
+  padding: 14px 20px;
+  border: none;
+  background: transparent;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+  transition: color .15s, border-color .15s;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.tabnav-btn:hover { color: var(--ink); }
+.tabnav-btn.active { color: var(--blue); border-bottom-color: var(--blue); }
+.tabnav-btn .badge {
+  background: var(--border);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+.tabnav-btn.active .badge { background: var(--sky); color: var(--blue); }
+
+/* ─── PAGE SHELL ──────────────────────────────────────────── */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ─── POLICY PAGE LAYOUT ──────────────────────────────────── */
+.policy-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: calc(100vh - 105px);
+}
+
+/* ─── SIDEBAR ─────────────────────────────────────────────── */
+.sidebar {
+  background: var(--paper);
+  border-right: 1px solid var(--border);
+  padding: 20px 0 40px;
+  position: sticky;
+  top: 105px;
+  height: calc(100vh - 105px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.filter-group {
+  padding: 0 16px 16px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+.filter-group:last-child { border-bottom: none; }
+
+.filter-title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  font-weight: 700;
+  color: var(--muted);
+  padding: 14px 2px 8px;
+}
+
+.filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background .1s;
+  font-family: 'Source Sans 3', sans-serif;
+  color: var(--ink);
+  font-size: 13.5px;
+}
+.filter-btn:hover { background: var(--sky); }
+.filter-btn.active { background: var(--navy); color: white; }
+
+.filter-swatch {
+  width: 9px; height: 9px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.filter-btn.active .filter-swatch { opacity: 1; }
+
+.filter-label { flex: 1; }
+
+.filter-count {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  background: var(--cream);
+  padding: 1px 6px;
+  border-radius: 8px;
+}
+.filter-btn.active .filter-count { color: rgba(255,255,255,.6); background: rgba(255,255,255,.15); }
+
+/* status dot version */
+.status-filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 6px 10px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background .1s;
+  font-family: 'Source Sans 3', sans-serif;
+  color: var(--muted);
+  font-size: 13px;
+}
+.status-filter-btn:hover { background: var(--sky); color: var(--ink); }
+.status-filter-btn.active { font-weight: 600; color: var(--ink); background: var(--sky); }
+
+.s-dot {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ─── MAIN CONTENT ────────────────────────────────────────── */
+.main {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── RESULTS BAR ─────────────────────────────────────────── */
+.results-bar {
+  padding: 10px 24px;
+  background: var(--cream);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 105px;
+  z-index: 10;
+}
+
+.results-count {
+  font-size: 13px;
+  color: var(--muted);
+}
+.results-count strong { color: var(--ink); }
+
+.results-spacer { flex: 1; }
+
+.sort-label { font-size: 12px; color: var(--muted); }
+.sort-select {
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 12px;
+  border: 1px solid var(--border);
+  padding: 4px 8px;
+  background: white;
+  color: var(--ink);
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* Status quick-filter pills in results bar */
+.status-pills {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.spill {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11.5px;
+  font-weight: 600;
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  transition: all .15s;
+  background: white;
+  color: var(--muted);
+}
+.spill:hover { border-color: var(--navy); color: var(--navy); }
+.spill.active { background: var(--navy); border-color: var(--navy); color: white; }
+
+/* ─── POLICY CARDS ────────────────────────────────────────── */
+.cards-list {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pcard {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+  transition: box-shadow .15s, border-color .15s;
+  position: relative;
+}
+.pcard:hover { box-shadow: var(--shadow-hover); border-color: #b5c4d8; }
+.pcard.open { box-shadow: var(--shadow-hover); border-color: var(--blue); }
+
+.pcard-header {
+  display: grid;
+  grid-template-columns: 5px auto 1fr auto;
+  gap: 0;
+  align-items: stretch;
+}
+
+.pcard-bar {
+  width: 5px;
+  align-self: stretch;
+  border-radius: 0;
+}
+
+.pcard-id-col {
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 72px;
+  border-right: 1px solid var(--border);
+}
+.pcard-id {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--muted);
+}
+.pcard-cat-tag {
+  font-size: 9.5px;
+  color: var(--muted);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 66px;
+}
+
+.pcard-body {
+  padding: 12px 16px;
+  flex: 1;
+}
+.pcard-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.3;
+}
+.pcard-subtitle {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.pcard-meta {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+  justify-content: center;
+}
+
+/* Status badge */
+.sbadge {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+
+.ami-chip {
+  font-size: 10.5px;
+  font-family: 'Source Code Pro', monospace;
+  color: var(--muted);
+  background: var(--cream);
+  border: 1px solid var(--border);
+  padding: 2px 7px;
+  border-radius: 4px;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: right;
+}
+
+/* ─── EXPAND ARROW ─────────────────────────────────────────── */
+.expand-arrow {
+  padding: 0 12px 0 0;
+  display: flex;
+  align-items: center;
+  color: var(--border);
+  transition: transform .2s, color .2s;
+  font-size: 16px;
+}
+.pcard.open .expand-arrow { transform: rotate(90deg); color: var(--blue); }
+
+/* ─── EXPANDED DETAIL ─────────────────────────────────────── */
+.pcard-detail {
+  display: none;
+  border-top: 1px solid var(--border);
+  animation: slidedown .15s ease;
+}
+.pcard.open .pcard-detail { display: block; }
+
+@keyframes slidedown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.detail-body {
+  padding: 20px 22px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.detail-block { }
+.detail-block.full { grid-column: 1 / -1; }
+
+.detail-lbl {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--muted);
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.detail-lbl-icon { font-size: 12px; }
+
+.detail-val {
+  font-size: 13.5px;
+  color: var(--ink);
+  line-height: 1.6;
+}
+
+.fairfax-callout {
+  background: #eef4fc;
+  border-left: 4px solid var(--blue);
+  padding: 11px 14px;
+  border-radius: 0 6px 6px 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+.dillon-callout {
+  background: #fffbeb;
+  border-left: 4px solid #d97706;
+  padding: 11px 14px;
+  border-radius: 0 6px 6px 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+.sources-text {
+  font-size: 12px;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.5;
+}
+
+/* ─── SEARCH HIGHLIGHT ───────────────────────────────────── */
+.hl { background: rgba(250,200,50,.4); border-radius: 2px; padding: 0 1px; }
+
+/* ─── EMPTY STATE ────────────────────────────────────────── */
+.empty-state {
+  padding: 80px 24px;
+  text-align: center;
+  color: var(--muted);
+}
+.empty-state .big {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 48px;
+  color: var(--border);
+  display: block;
+  margin-bottom: 12px;
+}
+.empty-state p { font-size: 15px; }
+
+/* ─── JURISDICTION PAGE ──────────────────────────────────── */
+.jx-page {
+  padding: 24px;
+}
+.jx-region-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.jx-region-btn {
+  padding: 5px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  background: white;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .15s;
+}
+.jx-region-btn:hover { border-color: var(--blue); color: var(--blue); }
+.jx-region-btn.active { background: var(--navy); border-color: var(--navy); color: white; }
+
+.jx-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 12px;
+}
+
+.jx-card {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  transition: box-shadow .15s;
+}
+.jx-card:hover { box-shadow: var(--shadow-hover); }
+
+.jx-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.jx-name { font-size: 14.5px; font-weight: 700; color: var(--ink); line-height: 1.2; }
+.jx-region-chip {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  letter-spacing: .04em;
+}
+
+.jx-tools { font-size: 12.5px; color: var(--muted); line-height: 1.55; margin-bottom: 10px; }
+
+.jx-ids {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.jx-id-chip {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 10px;
+  padding: 2px 7px;
+  border: 1px solid #bfd4ec;
+  border-radius: 4px;
+  color: var(--blue);
+  background: var(--sky);
+  cursor: pointer;
+  transition: background .1s;
+}
+.jx-id-chip:hover { background: var(--blue); color: white; border-color: var(--blue); }
+
+/* ─── SUMMARY PAGE ───────────────────────────────────────── */
+.summary-page {
+  padding: 24px;
+}
+.summary-intro {
+  max-width: 680px;
+  margin-bottom: 24px;
+}
+.summary-intro h2 {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--navy);
+  margin-bottom: 6px;
+}
+.summary-intro p { font-size: 14px; color: var(--muted); line-height: 1.65; }
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 14px;
+}
+
+.scard {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.scard-head {
+  padding: 13px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.scard-count {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+.scard-body {
+  padding: 4px 16px 14px;
+}
+.scard-list { list-style: none; }
+.scard-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--cream);
+  font-size: 13px;
+  cursor: pointer;
+  transition: color .1s;
+  color: var(--ink);
+}
+.scard-list li:last-child { border-bottom: none; }
+.scard-list li:hover { color: var(--blue); }
+.scard-list .tid {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  flex-shrink: 0;
+  min-width: 62px;
+  margin-top: 2px;
+}
+
+/* ─── LEGEND ─────────────────────────────────────────────── */
+.legend-bar {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 10px 24px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+.legend-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.legend-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--muted);
+  margin-right: 4px;
+}
+
+/* ─── WHAT IS AMI TOOLTIP BOX ─────────────────────────────── */
+.ami-explainer {
+  font-size: 11.5px;
+  color: var(--muted);
+  padding: 8px 10px;
+  background: var(--cream);
+  border-radius: 5px;
+  margin: 4px 0 0;
+  line-height: 1.5;
+}
+
+/* ─── HELP ICON ──────────────────────────────────────────── */
+.help {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--border);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--muted);
+  cursor: default;
+  position: relative;
+}
+.help:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 18px;
+  white-space: normal;
+  width: 200px;
+  background: var(--navy);
+  color: white;
+  font-size: 11px;
+  font-weight: 400;
+  padding: 6px 10px;
+  border-radius: 5px;
+  pointer-events: none;
+  z-index: 999;
+  line-height: 1.4;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ─── SCROLLBAR ──────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #b5c4d8; }
+
+/* ─── RESPONSIVE ─────────────────────────────────────────── */
+@media (max-width: 860px) {
+  .policy-layout { grid-template-columns: 1fr; }
+  .sidebar { position: static; height: auto; overflow: visible; display: flex; flex-wrap: wrap; gap: 0; padding: 10px 0 0; }
+  .filter-group { width: 50%; border-right: 1px solid var(--border); }
+  .detail-body { grid-template-columns: 1fr; }
+  .jx-grid { grid-template-columns: 1fr; }
+  .topbar-counts { display: none; }
+  .pcard-header { grid-template-columns: 5px 1fr auto; }
+  .pcard-id-col { display: none; }
+}
+@media (max-width: 540px) {
+  .tabnav { overflow-x: auto; }
+  .filter-group { width: 100%; }
+  .legend-bar { display: none; }
+  .results-bar { position: static; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="topbar">
+  <div class="topbar-brand"><strong>Fairfax County</strong> Housing Policy Library</div>
+  <div class="topbar-search">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Search tools, descriptions, jurisdictions…" autocomplete="off">
+  </div>
+  <div class="topbar-counts">
+    <div class="topbar-stat"><span class="n">66</span><span class="l">Policy Tools</span></div>
+    <div class="topbar-stat"><span class="n" id="stat-active">—</span><span class="l">Active in Fairfax</span></div>
+    <div class="topbar-stat"><span class="n">44</span><span class="l">Peer Jurisdictions</span></div>
+  </div>
+</header>
+
+<!-- TAB NAV -->
+<nav class="tabnav">
+  <button class="tabnav-btn active" data-page="policies">
+    Policy Matrix <span class="badge" id="badge-policies">66</span>
+  </button>
+  <button class="tabnav-btn" data-page="jurisdictions">
+    Peer Jurisdictions <span class="badge">44</span>
+  </button>
+  <button class="tabnav-btn" data-page="summary">
+    Fairfax Status Summary
+  </button>
+</nav>
+
+<!-- ═══════════════════════════════════════════════
+     POLICY MATRIX PAGE
+═══════════════════════════════════════════════ -->
+<div id="page-policies" class="page active">
+  <div class="policy-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+      <div class="filter-group">
+        <div class="filter-title">Category</div>
+        <button class="filter-btn active" data-cat="all">
+          <div class="filter-swatch" style="background:#888"></div>
+          <span class="filter-label">All Categories</span>
+          <span class="filter-count">66</span>
+        </button>
+        <button class="filter-btn" data-cat="Production - Regulatory/Zoning">
+          <div class="filter-swatch" style="background:var(--cat-rz)"></div>
+          <span class="filter-label">Production – Zoning</span>
+          <span class="filter-count">11</span>
+        </button>
+        <button class="filter-btn" data-cat="Production - Financing">
+          <div class="filter-swatch" style="background:var(--cat-fn)"></div>
+          <span class="filter-label">Production – Financing</span>
+          <span class="filter-count">12</span>
+        </button>
+        <button class="filter-btn" data-cat="Preservation">
+          <div class="filter-swatch" style="background:var(--cat-pres)"></div>
+          <span class="filter-label">Preservation</span>
+          <span class="filter-count">8</span>
+        </button>
+        <button class="filter-btn" data-cat="Protection - Tenant Rights">
+          <div class="filter-swatch" style="background:var(--cat-tr)"></div>
+          <span class="filter-label">Tenant Rights</span>
+          <span class="filter-count">9</span>
+        </button>
+        <button class="filter-btn" data-cat="Protection - Anti-Displacement">
+          <div class="filter-swatch" style="background:var(--cat-ad)"></div>
+          <span class="filter-label">Anti-Displacement</span>
+          <span class="filter-count">6</span>
+        </button>
+        <button class="filter-btn" data-cat="Land & Public Assets">
+          <div class="filter-swatch" style="background:var(--cat-land)"></div>
+          <span class="filter-label">Land &amp; Public Assets</span>
+          <span class="filter-count">5</span>
+        </button>
+        <button class="filter-btn" data-cat="Process & Administration">
+          <div class="filter-swatch" style="background:var(--cat-proc)"></div>
+          <span class="filter-label">Process &amp; Admin</span>
+          <span class="filter-count">12</span>
+        </button>
+        <button class="filter-btn" data-cat="Homeownership">
+          <div class="filter-swatch" style="background:var(--cat-home)"></div>
+          <span class="filter-label">Homeownership</span>
+          <span class="filter-count">3</span>
+        </button>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-title">
+          Fairfax Status
+        </div>
+        <button class="status-filter-btn active" data-status="all">
+          <div class="s-dot" style="background:#888"></div> All Statuses
+        </button>
+        <button class="status-filter-btn" data-status="active">
+          <div class="s-dot" style="background:var(--s-active)"></div> Active in Fairfax
+        </button>
+        <button class="status-filter-btn" data-status="emerging">
+          <div class="s-dot" style="background:var(--s-emerging)"></div> Emerging / Planned
+        </button>
+        <button class="status-filter-btn" data-status="partial">
+          <div class="s-dot" style="background:var(--s-partial)"></div> Partial / Ad Hoc
+        </button>
+        <button class="status-filter-btn" data-status="not-adopted">
+          <div class="s-dot" style="background:var(--s-not)"></div> Not Yet Adopted
+        </button>
+        <button class="status-filter-btn" data-status="blocked">
+          <div class="s-dot" style="background:var(--s-blocked)"></div> State-Blocked
+        </button>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-title">
+          Income Level Served
+          <span class="help" data-tip="AMI = Area Median Income. Fairfax 2024 median: ~$140K/yr for a family of 4. '30% AMI' = households earning ~$42K or less.">?</span>
+        </div>
+        <div class="ami-explainer">Who the policy helps, by income level</div>
+        <button class="status-filter-btn active" data-ami="all">
+          <div class="s-dot" style="background:#888"></div> All Income Levels
+        </button>
+        <button class="status-filter-btn" data-ami="30">
+          <div class="s-dot" style="background:var(--s-blocked)"></div> Deep: 30–50% AMI
+          <span style="font-size:10px;margin-left:4px;color:var(--muted)">(very low income)</span>
+        </button>
+        <button class="status-filter-btn" data-ami="60">
+          <div class="s-dot" style="background:var(--s-emerging)"></div> Moderate: 50–80% AMI
+          <span style="font-size:10px;margin-left:4px;color:var(--muted)">(low–moderate)</span>
+        </button>
+        <button class="status-filter-btn" data-ami="market">
+          <div class="s-dot" style="background:#888"></div> Market-Rate / All
+        </button>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-title">Views</div>
+        <button class="status-filter-btn" onclick="switchPage('jurisdictions')">
+          <div class="s-dot" style="background:var(--blue)"></div> Peer Jurisdictions →
+        </button>
+        <button class="status-filter-btn" onclick="switchPage('summary')">
+          <div class="s-dot" style="background:var(--cat-pres)"></div> Fairfax Status →
+        </button>
+      </div>
+
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+      <!-- Legend bar -->
+      <div class="legend-bar">
+        <span class="legend-title">Status Key:</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--s-active)"></span> Active in Fairfax</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--s-emerging)"></span> Emerging / In Planning</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--s-partial)"></span> Partial / Informal Use</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--s-not)"></span> Not Adopted</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--s-blocked)"></span> State Law Blocks This</span>
+      </div>
+
+      <div class="results-bar">
+        <span class="results-count" id="results-count">Showing <strong>66</strong> of 66 policies</span>
+        <div class="results-spacer"></div>
+        <span class="sort-label">Sort by</span>
+        <select class="sort-select" id="sort-select">
+          <option value="id">Policy ID</option>
+          <option value="status">Status</option>
+          <option value="category">Category</option>
+        </select>
+      </div>
+
+      <div class="cards-list" id="cardsList"></div>
+
+    </main>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     JURISDICTIONS PAGE
+═══════════════════════════════════════════════ -->
+<div id="page-jurisdictions" class="page">
+  <div class="jx-page">
+    <div class="jx-region-bar">
+      <span style="font-size:13px;font-weight:600;color:var(--muted);padding:5px 0;margin-right:4px;">Filter by region:</span>
+      <button class="jx-region-btn active" data-region="all">All Regions</button>
+      <button class="jx-region-btn" data-region="DMV">DMV</button>
+      <button class="jx-region-btn" data-region="National">National</button>
+      <button class="jx-region-btn" data-region="California">California</button>
+      <button class="jx-region-btn" data-region="Virginia">Virginia</button>
+      <button class="jx-region-btn" data-region="Cross-referenced">Cross-referenced</button>
+    </div>
+    <div class="jx-grid" id="jxGrid"></div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     SUMMARY PAGE
+═══════════════════════════════════════════════ -->
+<div id="page-summary" class="page">
+  <div class="summary-page">
+    <div class="summary-intro">
+      <h2>Fairfax County — Where Things Stand</h2>
+      <p>This table groups all 66 policy tools by their current adoption status in Fairfax County, as of April 2026. Click any tool to jump to its full entry in the Policy Matrix.</p>
+    </div>
+    <div class="summary-grid" id="summaryGrid"></div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════ JS ════════════════════════════════ -->
+<script>
+const DATA = {"policies": [{"id": "P-RZ-01", "category": "Production - Regulatory/Zoning", "subcategory": "Inclusionary Requirement", "tool": "Mandatory Inclusionary Zoning (MIZ)", "description": "Requires a set percentage of units in new residential developments to be priced affordably to income-restricted households, typically in exchange for density bonuses or other incentives. Most effective when calibrated against FAR-based economics, not flat percentages.", "examples": "Montgomery County MD MPDU (12.5% base, 15% in targeted areas, ~70% AMI); DC IZ (8–12.5%, 50–80% AMI); Denver EHA (8–15%, 60–70% AMI); Seattle MHA (performance or fee-in-lieu); San Jose IHO; Cambridge 20% set-aside; Somerville IZ at 20% (highest US, 2019); Charlottesville 2023 IZ (10% of 10+ unit developments); Chicago ARO 2021 (10% at 60% AMI weighted avg); Atlanta IZ Ordinance (2018, BeltLine TAD); Miami inclusionary density bonus (double-density for 30% at 60% AMI adjacent to urban core); NYC Mandatory Inclusionary Housing under City of Yes / Manhattan Plan.", "authority": "Local ordinance under state enabling authority", "ami": "50–80% AMI (often 60% rental/70% ownership)", "fairfax": "Fairfax already operates WDU (12% up to FAR 3.0, escalating to 20% above 3.0 countywide; Tysons and FAR-tiered schedules) and ADU (6.25%–12.5%). Core question for the Housing Element update is whether WDU/ADU depth should be deepened below 60% AMI in high-value TSAs, whether mandatory FAR-based escalator should extend to Reston and Dulles, and whether fee-in-lieu should be restricted.", "dillon": "Fairfax has heightened authority under Va. Code § 15.2-2304 (named jurisdictions); most permissive IZ authority in the Commonwealth. Use this authority affirmatively — do not rely on § 15.2-2305 framing.", "sources": "Va. Code § 15.2-2304; MoCo MPDU program; Denver EHA; DC IZ program", "status": "Active (WDU/ADU)"}, {"id": "P-RZ-02", "category": "Production - Regulatory/Zoning", "subcategory": "Inclusionary Incentive", "tool": "Voluntary Density/FAR Bonus", "description": "Allows additional height, FAR, or units above base zoning in exchange for on-site affordable units. Often stacked with inclusionary requirements as a compliance pathway.", "examples": "Prince William County AfDU (adopted June 2025, voluntary, 80% AMI with deeper 50% AMI incentive); Alexandria RMF zone (additional FAR with 1/3 bonus committed at ~40% AMI avg); Arlington bonus density via Special Exception; Austin density bonus programs (46,000+ units produced).", "authority": "Local ordinance; often bundled with conditional zoning/proffers", "ami": "40–80% AMI depending on geography", "fairfax": "Fairfax's existing system relies heavily on bonus density via the WDU matrix. Housing Element update should evaluate whether voluntary bonuses alone can meet need, or whether mandatory floor is needed. Alexandria's RMF 40% AMI average is a strong precedent for deep-affordability bonus in TSAs.", "dillon": "Permitted under existing Va. enabling; Fairfax can tier bonuses by geography under § 15.2-2304. Raleigh NC pioneered a bond-funded IZ: bonus + 20% of extra units affordable, financing stack via $80M bond.", "sources": "Alexandria RMF zone (Text Amendment 2018-0013); PWC AfDU Ordinance (2025)", "status": "Active (WDU/ADU bonus structure)"}, {"id": "P-RZ-03", "category": "Production - Regulatory/Zoning", "subcategory": "Zoning Reform", "tool": "Elimination of Exclusive Single-Family Zoning", "description": "Ends districts that permit only detached single-family homes; allows duplexes, triplexes, or missing-middle housing by-right in formerly exclusive areas.", "examples": "Minneapolis 2040 (first major city, 2020); Arlington EHO (up to 6-plexes, 2023); Charlottesville (2023 zoning rewrite); Portland Residential Infill Project; California SB 9 (statewide); Charlottesville 2023 zoning rewrite (eliminated SFD + parking + legalized SROs).", "authority": "Local zoning ordinance amendment", "ami": "Market-rate — indirect affordability through supply", "fairfax": "Minneapolis data (2020–2022) shows only 46 missing-middle permits — a cautionary lesson that upzoning alone does not produce deep affordability. Fairfax could pilot in select TSAs or along corridors while pairing with WDU requirements to capture affordability. Politically challenging given established SFD neighborhoods.", "dillon": "Clear local authority under Va. zoning enabling (§ 15.2-2280).", "sources": "Minneapolis 2040 Plan; Arlington EHO; Cal. Gov. Code § 65852.21 (SB 9)", "status": "Partially applied (limited in some district rewrites)"}, {"id": "P-RZ-04", "category": "Production - Regulatory/Zoning", "subcategory": "Zoning Reform", "tool": "Accessory Dwelling Unit (ADU) Liberalization", "description": "Allows secondary units (attached, detached, conversion) on single-family lots by-right with minimal discretionary review; addresses parking, owner-occupancy, and size ceilings to maximize uptake.", "examples": "California (AB 68, statewide ministerial review — 100,000+ ADUs permitted since 2017); Montgomery County MD; Arlington accessory dwellings; Seattle DADU/ADU rewrite.", "authority": "Local ordinance", "ami": "Market-rate informal affordability; some jurisdictions require affordability covenant", "fairfax": "Fairfax permits Accessory Living Units (ALUs) with restrictions. Housing Element update should evaluate by-right ADU authorization, removal of owner-occupancy requirement, and reduced parking minimums. California data shows ADUs now ~15% of statewide permits.", "dillon": "Clear local authority; no Dillon constraint.", "sources": "California HCD ADU data; Arlington County accessory dwelling program", "status": "Active (ALU ordinance)"}, {"id": "P-RZ-05", "category": "Production - Regulatory/Zoning", "subcategory": "Transit-Oriented", "tool": "Transit-Oriented Development (TOD) Overlay", "description": "Creates overlay districts around transit stations permitting higher density, reduced parking, and mixed use, often with linked affordability requirements.", "examples": "Fairfax TSA policies (existing); Montgomery County Thrive 2050 corridor planning; Seattle Station Area plans; Sacramento SB 10 ministerial approval near transit; San Diego Complete Communities; Chicago Connected Communities Ordinance / ETOD (equitable TOD linking affordability to transit density).", "authority": "Local comprehensive plan + zoning overlay", "ami": "Typically 60–80% AMI via linked IZ", "fairfax": "Fairfax has strong existing TSA framework but should consider deeper affordability requirements specifically in half-mile-radius TOD overlays and pair with Va. Code § 15.2-2303.4 affordable housing site authority.", "dillon": "Fully within existing Va. enabling authority.", "sources": "Fairfax Comprehensive Plan TSAs; Sacramento Housing Element; San Diego Complete Communities", "status": "Active (TSA framework)"}, {"id": "P-RZ-06", "category": "Production - Regulatory/Zoning", "subcategory": "Parking", "tool": "Parking Minimum Reduction/Elimination", "description": "Reduces or eliminates minimum parking requirements for residential development, particularly affordable and transit-oriented projects; reduces per-unit construction costs by $25K–$75K.", "examples": "Minneapolis (eliminated citywide 2021); Seattle (reduced near transit); Buffalo (eliminated 2017); Austin (eliminated 2023).", "authority": "Local zoning ordinance", "ami": "All income levels; especially helpful for deep-affordability LIHTC deals", "fairfax": "Fairfax's auto-oriented development pattern makes this politically challenging outside TSAs, but parking reductions in TOD overlays could materially improve LIHTC feasibility. Should be tied explicitly to 'but-for' analysis in LIHTC-reliant proffers.", "dillon": "Clear local authority.", "sources": "Minneapolis 2040; Seattle parking reform; Austin CodeNEXT", "status": "Partial (TOD-specific)"}, {"id": "P-RZ-07", "category": "Production - Regulatory/Zoning", "subcategory": "Missing Middle", "tool": "Missing Middle Housing Zoning", "description": "Legalizes duplexes, triplexes, fourplexes, townhomes, courtyard apartments, and cottage courts in areas currently limited to single-family; typically 8–24 units per acre.", "examples": "Arlington EHO (up to 6 units on SFD lots, 2023); Charlottesville; Portland RIP; California SB 9; Minneapolis 2040; Gainesville FL; Phoenix Middle Housing Overlay District (Nov 2025, response to AZ HB 2721 mandate); Albemarle density bonus § 2.4.5 (30% bonus for 15% affordable).", "authority": "Local zoning", "ami": "Market-rate naturally affordable", "fairfax": "Most proximate peer experiment is Arlington EHO (~~6-plex, 2023). Fairfax Housing Element should consider incremental missing-middle allowance in R-2/R-3 areas near transit and activity centers, with corresponding road and school capacity review.", "dillon": "Clear local authority.", "sources": "Arlington EHO ordinance; SB 9 fact sheet (CA HCD)", "status": "Not adopted"}, {"id": "P-RZ-08", "category": "Production - Regulatory/Zoning", "subcategory": "Commercial Conversion", "tool": "Office-to-Residential Conversion Incentives", "description": "Provides tax abatement, zoning flexibility, and expedited review for converting underutilized commercial/office space to residential, including affordable set-asides. Particularly relevant post-pandemic office vacancy trends.", "examples": "DC Housing in Downtown Abatement; Alexandria Zoning for Housing; Boston Downtown Residential Conversion Incentive PILOT; NYC 421-g; Arlington Commercial Market Resiliency Initiative.", "authority": "Local tax abatement and zoning amendment", "ami": "50–80% AMI set-asides typical", "fairfax": "Fairfax has significant office vacancy in Tysons, Merrifield, and Reston; conversion pathway with affordability set-aside could unlock stranded commercial capacity. Should be paired with parking reduction and expedited review.", "dillon": "Local authority; tax abatement requires BoS authorization under Va. property tax code.", "sources": "DC Housing in Downtown Act (2022); Alexandria Zoning for Housing", "status": "Emerging (Commercial Revitalization analysis)"}, {"id": "P-RZ-09", "category": "Production - Regulatory/Zoning", "subcategory": "Adaptive Reuse", "tool": "Adaptive Reuse Streamlining", "description": "Waives or relaxes building code, zoning, and parking standards for conversion of existing non-residential structures (offices, hotels, institutional) to housing, reducing timeline and cost.", "examples": "Los Angeles Adaptive Reuse Ordinance (1999, ~14,000 units); San Francisco Commercial Conversion Program; Calgary Downtown Conversion; NYC Office Conversion Accelerator.", "authority": "Local ordinance + building code flexibility", "ami": "Ranges 50–120% AMI", "fairfax": "Could be operationalized as a stand-alone ordinance or bundled with office conversion. Strong case for pairing with WDU requirement for any upzoning or FAR bonus.", "dillon": "Local authority; building code flexibility requires state code compliance.", "sources": "LA Adaptive Reuse Ordinance; NHC Matrix of Policies", "status": "Not adopted"}, {"id": "P-RZ-10", "category": "Production - Regulatory/Zoning", "subcategory": "Affordable Housing Overlay", "tool": "Affordable Housing Overlay / 100% Affordable By-Right", "description": "Creates an overlay district that permits 100% affordable projects to bypass certain discretionary processes (height, FAR, parking, design review) if affordability and design thresholds are met.", "examples": "Cambridge MA Affordable Housing Overlay (2020, expanded 2023); San Jose HERO overlay for North San Jose; Austin SMART Housing; California AB 2011 (commercial corridor by-right 100% affordable); Salt Lake City Affordable Housing Incentives (by-right density + parking relief, eff. April 2024); Somerville 100% affordable overlay.", "authority": "Local overlay ordinance", "ami": "Deep: typically 50–80% AMI, with deep-affordability requirements", "fairfax": "Cambridge AHO is the cleanest precedent: 100% affordable projects get matter-of-right approval with height/FAR increases. For Fairfax, a 100%-affordable-by-right track could dramatically reduce entitlement risk for FCRHA and nonprofit LIHTC partners.", "dillon": "Requires careful Dillon Rule analysis — Va. does not have a direct equivalent to CA AB 2011, but § 15.2-2303.4 authorizes affordable housing sites.", "sources": "Cambridge Affordable Housing Overlay (2020); California AB 2011", "status": "Not adopted"}, {"id": "P-RZ-11", "category": "Production - Regulatory/Zoning", "subcategory": "Flexibility", "tool": "Flexible Unit Types (SRO, Co-Living, Micro-Units)", "description": "Permits single-room occupancy (SRO), co-living, and micro-unit housing as residential use; reduces per-unit cost by 30–50% and serves extremely low-income single adults, seniors, and vulnerable populations.", "examples": "San Diego HE 2021–2029 (SRO encouragement, especially VLI); Seattle congregate residence code; NYC SRO preservation.", "authority": "Local zoning + building code", "ami": "30–50% AMI", "fairfax": "Deep-affordability tool. Could support single-adult and senior populations in Tysons and Reston, where compact units match transit-oriented demand. Requires zoning update + tailored building code (Va. USBC).", "dillon": "Local zoning authority; building code follows state USBC.", "sources": "San Diego Housing Element (Final June 2021)", "status": "Not adopted"}, {"id": "P-FN-01", "category": "Production - Financing", "subcategory": "Local Trust Fund", "tool": "Housing Trust Fund (Dedicated Local Revenue)", "description": "Establishes a dedicated fund for affordable housing production and preservation, seeded by a reliable local revenue source (not general fund appropriation). Common sources: real estate transfer tax, document recordation surtax, commercial linkage fee, TIF, or dedicated property tax levy.", "examples": "Arlington AHIF ($20M+ annual); DC Housing Production Trust Fund ($500M+ annual); Seattle MHA fund (~$22M/yr); Portland IZ SDC fund; Cambridge Affordable Housing Trust ($40M FY25); Richmond AHTF (since 2004, $10M annual CIP — $9M to 8 projects in 2025); Philadelphia Housing Trust Fund; Asheville HTF (nearly 25 years old, paired with Land Use Incentive Grants + bond); Atlanta HTF; Miami Affordable Housing Trust Fund.", "authority": "Local authority; dedicated revenue often requires state enabling for transfer tax", "ami": "Typically 30–80% AMI; priority to 60% and below", "fairfax": "Fairfax operates the Housing Trust Fund (HTF) but dedicated revenue stream is limited. Housing Element update should evaluate a dedicated penny on property tax, recordation surtax enabling, or commercial linkage fee authorization through state legislature.", "dillon": "Dedicated local tax revenue may require state authorization (e.g., transfer tax — Fairfax does not currently have). BoS can dedicate a portion of real estate tax under Va. Code without new enabling.", "sources": "Fairfax HTF; Arlington AHIF; DC HPTF; Cambridge AHT", "status": "Active (funding level is the live question)"}, {"id": "P-FN-02", "category": "Production - Financing", "subcategory": "Revolving Fund", "tool": "Public Housing Production / Revolving Mixed-Income Fund", "description": "Publicly-capitalized revolving construction loan fund owned by the housing authority that finances mixed-income housing (typically 30% income-restricted) and recycles repayments into new projects.", "examples": "Montgomery County HOC Housing Production Fund ($100M revolving); Seattle Social Housing Developer ($115M, 2026 launch); Portland social housing exploration (2025); Vienna mixed-income model.", "authority": "Local authorization + housing authority bonding capacity", "ami": "Mixed: 20% at ≤50% AMI + 10% MPDU", "fairfax": "HOC's model is the most directly relevant Mid-Atlantic precedent — Fairfax's FCRHA has structural parallels and statutory authority to operate similar programs. Housing Element update should evaluate a Fairfax HTF-style revolving vehicle targeting TSAs.", "dillon": "FCRHA operates under Va. Code Title 36; has bonding authority similar to HOC.", "sources": "HOC Housing Production Fund; Seattle Social Housing Developer", "status": "Not adopted"}, {"id": "P-FN-03", "category": "Production - Financing", "subcategory": "Federal Leverage", "tool": "Low-Income Housing Tax Credit (LIHTC) — State and Local Alignment", "description": "4% and 9% LIHTC are the primary federal subsidy for affordable housing production. Local role includes tax abatement, gap financing, land contribution, and alignment of QAP (state) scoring with local priorities.", "examples": "Every jurisdiction uses; key differentiators are (a) tax abatement depth and (b) local gap financing quality. Maryland Rental Housing Works; Massachusetts HIF; DC 4% bond capacity prioritization.", "authority": "Federal (IRC § 42) + state QAP + local tax abatement/gap", "ami": "30–60% AMI (tax credit deal structure)", "fairfax": "Fairfax actively participates through HTF gap financing, FCRHA ownership, and property tax abatements under Va. Code § 58.1-3651/3212. Housing Element update initiative includes LIHTC cycle alignment (tracking). Key lever: 'but-for' proffer validation and expedited review for LIHTC deals.", "dillon": "Tax abatement requires BoS adoption; FCRHA sponsorship requires compliance with Va. Code Title 36.", "sources": "IRC § 42; Va. Code § 58.1-3651; VHDA QAP", "status": "Active"}, {"id": "P-FN-04", "category": "Production - Financing", "subcategory": "Commercial Linkage", "tool": "Commercial Linkage Fee", "description": "Impact fee assessed on new commercial (office, retail, hotel) development, dedicated to affordable housing trust fund. Justified by nexus study showing commercial job creation generates affordable housing demand.", "examples": "Boston Inclusionary Development Policy + commercial linkage ($15.39/SF, 2023); Seattle MHA commercial component; Cambridge linkage fee (recently raised); San Francisco Jobs Housing Linkage Program.", "authority": "Local ordinance following nexus study; often requires state enabling", "ami": "50–80% AMI funding typical", "fairfax": "Fairfax lacks explicit enabling; would likely require Commonwealth authorization. Strong policy case given Tysons/Reston commercial employment base. Housing Element update could set long-term advocacy goal at General Assembly.", "dillon": "Virginia generally prohibits impact fees absent enabling; § 15.2-2329 authorizes limited transportation impact fees. Affordable housing linkage likely requires new enabling legislation.", "sources": "Boston IDP; Seattle MHA commercial; SF Jobs Housing Linkage", "status": "Not available (Dillon constraint)"}, {"id": "P-FN-05", "category": "Production - Financing", "subcategory": "Tax Abatement", "tool": "Affordable Housing Property Tax Exemption / PILOT", "description": "Reduces or eliminates ad valorem property tax for income-restricted units, often in exchange for deeper affordability or longer affordability periods. PILOT (payment in lieu of taxes) agreements are common for LIHTC projects.", "examples": "New York 421-a/485-x; Portland 10-Year MULTE; Seattle MFTE; Fairfax FCRHA-owned LIHTC tax abatements; Va. § 58.1-3651. Asheville Land Use Incentive Grants (LUIG — property tax increment rebate to affordability-delivering developers).", "authority": "Local authorization of state statute", "ami": "Typically 30–60% AMI", "fairfax": "Fairfax uses for FCRHA projects. Housing Element update should evaluate expansion to privately-owned LIHTC properties, sliding scale abatements for deeper affordability or longer terms, and clearer thresholds for MPDU/WDU enrichment.", "dillon": "Va. Code § 58.1-3651 (general nonprofit); § 58.1-3212 (real property owned by authority).", "sources": "Va. Code § 58.1-3651; Portland MULTE; NY 421-a", "status": "Active"}, {"id": "P-FN-06", "category": "Production - Financing", "subcategory": "Multifamily Bonds", "tool": "Multifamily Conduit Bond Financing", "description": "Issuance of tax-exempt private activity bonds (PABs) by the housing authority or local issuer, unlocking 4% LIHTC and lowering long-term financing costs for affordable rental projects.", "examples": "VHDA multifamily bond program (state); Maryland CDA; DC HFA; Fairfax FCRHA issuances.", "authority": "Federal IRS § 142(d) + state volume cap allocation", "ami": "50–60% AMI", "fairfax": "FCRHA is an established issuer. Housing Element update should review issuance volume trends and whether Fairfax should advocate for enhanced state PAB capacity or set local targets for annual issuance.", "dillon": "FCRHA authority per Va. Code Title 36.", "sources": "IRC § 142(d); VHDA Multifamily Bond Program", "status": "Active"}, {"id": "P-FN-07", "category": "Production - Financing", "subcategory": "Gap Financing", "tool": "Gap Financing / Soft-Second Loans", "description": "Subordinate loans or grants that close the financing gap between LIHTC equity, senior debt, and total development cost. Usually low- or no-interest, deferred, and cash-flow contingent.", "examples": "Maryland Rental Housing Works (up to $2.5M gap cap); Massachusetts Affordable Housing Trust Fund; Arlington AHIF; DC DHCD; Fairfax HTF.", "authority": "Local trust fund + federal HOME/CDBG", "ami": "30–60% AMI", "fairfax": "Fairfax HTF provides gap financing. Housing Element update should evaluate size of gap commitments relative to rising construction costs, state LIHTC pipeline, and whether term-sheet predictability can be improved to match LIHTC application cycles.", "dillon": "Full local authority.", "sources": "MD RHW program; Fairfax HTF", "status": "Active"}, {"id": "P-FN-08", "category": "Production - Financing", "subcategory": "Impact Fee Waiver", "tool": "Affordable Housing Impact Fee Waivers / Reductions", "description": "Waives or reduces permit, plan review, and impact fees for affordable units. Low-cost tool that directly reduces development cost.", "examples": "Many jurisdictions; MD transit fee waivers (recent state authorization); Austin SMART Housing fee waivers; San Diego affordable fee reductions.", "authority": "Local authorization", "ami": "All AMI tiers feasible", "fairfax": "Fairfax could authorize systemic fee waiver for WDU/ADU component units, or for 100% affordable projects. Low-cost, high-signal policy change.", "dillon": "Clear local authority.", "sources": "NHC Matrix; MD HB 1147 (transit agency fee waiver, 2023)", "status": "Partial"}, {"id": "P-FN-09", "category": "Production - Financing", "subcategory": "Bond Authorization", "tool": "General Obligation Affordable Housing Bonds", "description": "Voter-approved general obligation bonds dedicated to affordable housing; provides large capital injection with favorable borrowing cost.", "examples": "LA County Measure H; Austin $350M 2022 bond; Charlotte $100M 2022 bond; California Prop 1 $6.4B mental health/housing (2024); Durham NC $95M bond (2019, funding DPA + production); Raleigh NC $80M affordable housing bond (2020, 1,345-unit goal by 2030 + bond-funded IZ); Asheville NC affordable housing bond.", "authority": "Voter approval + local authorization", "ami": "All tiers; typically prioritizes 30–80% AMI", "fairfax": "Fairfax does not have a voter-approved affordable housing GO bond. Housing Element update could propose exploration of bond measure aligned with a decade's production target in TSAs.", "dillon": "BoS can issue GO bonds subject to referendum requirements under Va. Code § 15.2-2600.", "sources": "Austin 2022 GO bond; Charlotte 2022 bond", "status": "Not adopted"}, {"id": "P-FN-10", "category": "Production - Financing", "subcategory": "Employer Partnership", "tool": "Employer-Assisted Housing (EAH)", "description": "Partnerships with major employers (health systems, universities, large private employers) that fund down-payment assistance, rental subsidies, or new construction for workforce housing.", "examples": "MedStar (DC metro); University of Chicago; Cleveland Clinic; Virginia Tech (Blacksburg area).", "authority": "Private partnership; public role is convening/co-funding", "ami": "50–120% AMI", "fairfax": "Fairfax's major employer base (Inova, federal contractors, Amazon HQ2 spillover) is underutilized. Housing Element update could propose an EAH convening program and HCD matching fund pilot.", "dillon": "No Dillon constraint.", "sources": "NHC Matrix of Policies; MedStar EAH case studies", "status": "Emerging"}, {"id": "P-FN-11", "category": "Production - Financing", "subcategory": "Regional", "tool": "Regional Housing Trust Fund / Interjurisdictional Fund", "description": "Multi-jurisdiction pooled fund where contributions from multiple counties/cities support regional housing priorities, addressing spillover labor markets and county-line arbitrage.", "examples": "Seattle / King County ARCH (A Regional Coalition for Housing); Twin Cities Regional Housing Policy; Front Range Regional Housing Partnership (CO).", "authority": "Interlocal agreement under state authority", "ami": "30–80% AMI", "fairfax": "NOVA region (Fairfax, Arlington, Alexandria, Loudoun, Prince William) lacks a true regional fund. Housing Element update could propose exploration of a Northern Virginia regional housing trust.", "dillon": "Va. Code § 15.2-1300 authorizes interjurisdictional agreements.", "sources": "ARCH (King County); NHC Matrix", "status": "Not adopted"}, {"id": "P-FN-12", "category": "Production - Financing", "subcategory": "Tax Increment", "tool": "Tax Increment Allocation for Affordable Housing (TIF/CRA/URA)", "description": "Dedicates a share of tax-increment revenue from redevelopment or community reinvestment areas to affordable housing production and preservation, creating a recurring revenue stream tied to rising real estate values rather than annual appropriation.", "examples": "Salt Lake City Community Reinvestment Agency (10–20% of tax increment dedicated to affordable housing); Chicago TIF set-aside policies; Denver URA affordable housing allocation; St. Louis and Kansas City TIF AH allocations.", "authority": "State-enabled tax-increment financing statute", "ami": "30–80% AMI (captures value escalation to fund depth)", "fairfax": "Virginia Tax-Increment Financing is authorized under Va. Code § 58.1-3245 et seq. Fairfax has limited experience with TIF. Housing Element update should evaluate whether TIF-enabled revitalization districts (Richmond Highway, Springfield CBC, Seven Corners) could dedicate a share of increment to the Housing Trust Fund or preservation acquisitions.", "dillon": "Tool available under Va. § 58.1-3245; locally structured percent-allocation is a local policy choice.", "sources": "Va. Code § 58.1-3245; Salt Lake City RDA 2024 allocation policy", "status": "Not adopted"}, {"id": "PR-01", "category": "Preservation", "subcategory": "Acquisition", "tool": "Acquisition & Preservation Fund", "description": "Dedicated revolving capital for rapid-response acquisition of existing affordable or naturally-occurring affordable (NOAH) housing before market loss; speed is the critical feature.", "examples": "Denver's Preservation Fund; DC Preservation Fund ($65M); Boston Acquisition Opportunity Program (1,000+ units preserved); Cambridge Trust's 14-property acquisition (FY25); Fairfax HPP (aligned); San Francisco Small Sites Program (acquisition of 5–25 unit buildings to prevent displacement, 2014).", "authority": "Local/philanthropic capital", "ami": "30–80% AMI", "fairfax": "Fairfax operates a Housing Preservation Program. Housing Element update should evaluate expansion of revolving capacity, pre-approval with mission-driven owners, and pre-positioned due-diligence resources for 60-day acquisitions.", "dillon": "Full local authority.", "sources": "DC Preservation Fund; Boston AOP; Cambridge AHT", "status": "Active (HPP)"}, {"id": "PR-02", "category": "Preservation", "subcategory": "Right of First Refusal", "tool": "Right of First Refusal (Jurisdiction-Level)", "description": "Statutory requirement that a seller of affordable or income-restricted property offer the locality (or designee) the right to match a third-party offer before sale. Distinct from TOPA (tenant-level); this is jurisdiction-level.", "examples": "Fairfax County (existing); Montgomery County MD; Massachusetts 40T; New Jersey Prevention of Homelessness Act; Prince George's County CHS right-of-first-refusal for affordable rental properties at risk of market conversion.", "authority": "Local ordinance + Va. § 15.2-2114.1 for Fairfax", "ami": "Target: expiring-use LIHTC and subsidized stock", "fairfax": "Fairfax has ROFR authority. Housing Element update should evaluate strengthening covenant-renewal requirements, clarifying triggers, and staffing for prompt response.", "dillon": "Fairfax has specific ROFR authority under Va. enabling for certain subsidized properties.", "sources": "Va. Code § 36-96.6:1; Fairfax HCD", "status": "Active"}, {"id": "PR-03", "category": "Preservation", "subcategory": "Preservation Inventory", "tool": "At-Risk Affordable Housing Inventory", "description": "Maintained database of all federally subsidized, LIHTC, and regulatory affordable properties, including affordability expiration dates, ownership, physical condition, and risk flags. Used to trigger preemptive outreach.", "examples": "NHPD national; California HCD preservation database; King County ARCH preservation registry; Montgomery County at-risk inventory.", "authority": "Local staff capacity + data subscriptions", "ami": "All regulated stock", "fairfax": "Fairfax maintains inventory through HCD; Housing Element update should formalize annual at-risk report, refresh cycles, and public-facing dashboard. Aligns with 2026 Affordable Housing Dashboard scope.", "dillon": "No Dillon issue; purely administrative.", "sources": "NHPD; Local Housing Solutions preservation inventories", "status": "Active"}, {"id": "PR-04", "category": "Preservation", "subcategory": "NOAH", "tool": "Naturally Occurring Affordable Housing (NOAH) Acquisition", "description": "Preservation targeting of market-rate rental properties (typically 1960s–1980s garden apartments) with unsubsidized below-market rents; NOAH represents the bulk of 'affordable' stock and has no regulatory protection.", "examples": "Minneapolis NOAH Impact Fund; Houston Harvey-era NOAH program; LISC NOAH initiative; Fairfax NOAH preservation via HCD.", "authority": "Local capital + impact investment partnerships", "ami": "50–80% AMI (naturally)", "fairfax": "NOAH loss is the single largest source of affordability attrition in Fairfax. Housing Element update's Policy 6d preservation analysis speaks directly to this. Evaluate structured impact-investment partnership for Reston/Tysons NOAH capture.", "dillon": "Local authority + partnership structure; no Dillon issue.", "sources": "Minneapolis NOAH Impact Fund; LISC NOAH program", "status": "Active (HPP)"}, {"id": "PR-05", "category": "Preservation", "subcategory": "Preservation Property Tax", "tool": "Preservation Property Tax Abatement", "description": "Property tax abatement targeted at preservation rather than new construction — reduces operating cost for owners who commit to extended affordability or income restrictions.", "examples": "New Jersey preservation exemption; Massachusetts Chapter 121A; various county-level abatements (Fairfax § 58.1-3651 applications).", "authority": "Local authorization of Va. § 58.1-3651", "ami": "30–80% AMI", "fairfax": "Fairfax can expand § 58.1-3651 applications to incentivize owners of unsubsidized affordable rental to enter long-term covenants. Underused tool given attrition pressure.", "dillon": "Va. Code § 58.1-3651 authorizes.", "sources": "Va. Code § 58.1-3651", "status": "Partial"}, {"id": "PR-06", "category": "Preservation", "subcategory": "Section 8 Preservation", "tool": "Mark-to-Market / HAP Contract Preservation", "description": "Proactive engagement with HUD and owners to renew Section 8 HAP contracts, perform Mark-to-Market restructurings, and prevent opt-outs.", "examples": "HUD OMHAR program (federal); Local HCDs across the country support with tenant notification and matching subsidies; FCRHA admin.", "authority": "Federal HUD + local HCD", "ami": "30–50% AMI (HAP)", "fairfax": "Ongoing FCRHA and HCD responsibility. Housing Element update should formalize opt-out alert protocol and backstop funding for temporary vouchers during transitions.", "dillon": "Federal authority primarily; local coordination responsibility.", "sources": "HUD Office of Recap; FCRHA", "status": "Active"}, {"id": "PR-07", "category": "Preservation", "subcategory": "Expiring Covenants", "tool": "Affordability Covenant Extension & Replacement", "description": "Negotiated extensions of expiring affordability covenants (typical LIHTC extended-use 15 + 15 = 30 years). Local role is to offer refinancing / resyndication incentives.", "examples": "Montgomery County replacement LIHTC; California HCD preservation program; HUD Section 8 renewals.", "authority": "Local gap + state QAP preference points", "ami": "30–60% AMI", "fairfax": "Fairfax HTF can finance resyndication. Housing Element update should evaluate a dedicated preservation resyndication subsidy line, linked to LIHTC cycle alignment (existing initiative).", "dillon": "Local authority.", "sources": "Montgomery County DHCA preservation", "status": "Active"}, {"id": "PR-08", "category": "Preservation", "subcategory": "Code Enforcement", "tool": "Proactive Rental Licensing & Code Enforcement", "description": "Jurisdiction-maintained rental registry with routine inspections; improves habitability of NOAH stock and creates intervention point before displacement.", "examples": "Minneapolis Rental Licensing; Boston Inspectional Services Dept; Los Angeles Systematic Code Enforcement Program; St. Paul rental licensing.", "authority": "Local ordinance", "ami": "Primarily rental stock at 30–80% AMI", "fairfax": "Fairfax operates inspection services but no mandatory multifamily rental registry. Housing Element update could evaluate a lightweight registry for multifamily properties at or above 20 units.", "dillon": "Local authority under Va. Uniform Statewide Building Code and zoning ordinance.", "sources": "Minneapolis rental registry; LA SCEP", "status": "Partial"}, {"id": "T-RT-01", "category": "Protection - Tenant Rights", "subcategory": "Source of Income", "tool": "Source of Income Discrimination Protection", "description": "Prohibits landlords from refusing to rent to Housing Choice Voucher holders or other lawful income sources; critical to making voucher programs functional in competitive markets.", "examples": "Virginia statewide (Va. Code § 36-96.3, effective July 2020 — already protective); Fairfax complements at local level.", "authority": "Virginia state law", "ami": "Targets voucher holders (typically ≤50% AMI)", "fairfax": "Already statewide. Fairfax HCD should continue fair housing enforcement and education. Housing Element update could reinforce local testing program.", "dillon": "State-level already; local authority is enforcement/education.", "sources": "Va. Code § 36-96.3", "status": "Active (state)"}, {"id": "T-RT-02", "category": "Protection - Tenant Rights", "subcategory": "Just Cause", "tool": "Just Cause Eviction", "description": "Restricts permissible grounds for non-renewal/eviction to enumerated 'just causes' (e.g., non-payment, lease violation, owner move-in), prohibiting no-fault terminations during lease or year.", "examples": "California AB 1482 (statewide); Oregon SB 608; New Jersey (since 1974); Seattle; New York (HSTPA).", "authority": "State or local ordinance; Virginia currently preempts local just-cause", "ami": "All tenants", "fairfax": "Virginia Residential Landlord and Tenant Act (VRLTA) preempts local just-cause eviction ordinances. Housing Element update can identify as state legislative priority.", "dillon": "Va. Code Title 55.1 VRLTA constrains local variation.", "sources": "California AB 1482; Oregon SB 608", "status": "Not available (state preemption)"}, {"id": "T-RT-03", "category": "Protection - Tenant Rights", "subcategory": "Right to Counsel", "tool": "Right to Counsel in Eviction Proceedings", "description": "Publicly-funded legal representation for tenants facing eviction; typically income-qualified. Proven 84% success rate (NYC) keeping tenants housed.", "examples": "NYC (first, 2017, 84% success); Cleveland (93% remained housed); Kansas City (86%); Philadelphia; San Francisco.", "authority": "Local ordinance + funding", "ami": "≤ 80% AMI typical eligibility", "fairfax": "Fairfax does not have a formal right to counsel. Legal Services of Northern Virginia provides limited coverage. Housing Element update could evaluate a county-funded right-to-counsel pilot in targeted ZIP codes with highest eviction rates.", "dillon": "No Dillon issue; county can fund legal services.", "sources": "NYC OCJ Right to Counsel; Cleveland RTC; Kansas City RTC", "status": "Not adopted"}, {"id": "T-RT-04", "category": "Protection - Tenant Rights", "subcategory": "Rent Stabilization", "tool": "Rent Stabilization / Rent Control", "description": "Caps annual rent increases (typically CPI + fixed percent), usually with vacancy decontrol and hardship exceptions.", "examples": "NYC; California AB 1482 (5% + CPI cap, ≤10%); Oregon SB 608 (7% + CPI); St. Paul; Newark; DC (Rental Housing Act).", "authority": "State enabling required in most jurisdictions", "ami": "All tenants in regulated units", "fairfax": "Virginia preempts local rent control (Va. Code § 55.1-1204). Housing Element update can identify as state legislative priority, but not locally actionable now.", "dillon": "Clear state preemption; no local authority.", "sources": "Va. Code § 55.1-1204; CA AB 1482", "status": "Not available (state preemption)"}, {"id": "T-RT-05", "category": "Protection - Tenant Rights", "subcategory": "Notice & Habitability", "tool": "Extended Rent Increase / Termination Notice", "description": "Extends required notice periods for rent increases above a threshold (e.g., 60 or 90 days for increases >5%), and strengthens repair/habitability enforcement.", "examples": "Massachusetts (90-day notice); Oregon (90-day for increases >5%); California (30-day/60-day based on tenancy length); recent Cambridge 2025 expansions.", "authority": "State law in most; limited local authority in Va.", "ami": "All tenants", "fairfax": "Most notice extensions require state amendment of VRLTA. Housing Element update can identify as state legislative priority; local administrative reinforcement only.", "dillon": "Va. VRLTA preempts.", "sources": "Va. Code Title 55.1; Cambridge 2025 updates", "status": "Not available (state preemption)"}, {"id": "T-RT-06", "category": "Protection - Tenant Rights", "subcategory": "Eviction Record", "tool": "Eviction Record Sealing / Expungement", "description": "Automatic or petition-based sealing of eviction court records after a period, reducing blacklisting in tenant screening.", "examples": "California SB 1157; Oregon SB 873; DC Council 2022; Minnesota 2020.", "authority": "State legislation", "ami": "All tenants with eviction history", "fairfax": "Virginia would require state amendment. Fairfax Housing Element update can identify as state legislative priority; local role is education/fair-housing testing.", "dillon": "State-level matter primarily.", "sources": "CA SB 1157; DC eviction sealing", "status": "Not available (state)"}, {"id": "T-RT-07", "category": "Protection - Tenant Rights", "subcategory": "Security Deposits", "tool": "Security Deposit Caps / Alternatives", "description": "Caps security deposits at one month's rent or offers tenant-protection insurance alternatives; reduces move-in barrier, especially for voucher tenants.", "examples": "California (limits); Cincinnati Renter's Choice; Atlanta surety bond pilot; Pennsylvania (two-month cap).", "authority": "State law for most caps; local authority for voluntary alternatives", "ami": "All tenants; benefits lower-income most", "fairfax": "VRLTA sets two-month cap (Va. Code § 55.1-1226). Local options: Fairfax could partner on a county-backed surety bond or deposit-alternative pilot.", "dillon": "State caps under VRLTA; local partnership models viable.", "sources": "Va. Code § 55.1-1226; Cincinnati Renter's Choice", "status": "Partial"}, {"id": "T-RT-08", "category": "Protection - Tenant Rights", "subcategory": "Emergency Assistance", "tool": "Emergency Rental Assistance Program (ERAP)", "description": "One-time or short-term rental assistance to prevent eviction; administered by local agency or nonprofit partners. Proved core tool during COVID; sustained local programs are the ongoing question.", "examples": "Every jurisdiction operated ERAP during COVID; sustained programs: Fairfax ERAP (HCD), DC ERAP, Cook County IL, Washington State.", "authority": "Local + federal appropriation", "ami": "≤50% AMI typical", "fairfax": "Fairfax HCD administers ERAP. Housing Element update should evaluate sustained baseline funding post-federal ERAP, connection to eviction diversion program, and coordination with right-to-counsel pilot.", "dillon": "Full local authority.", "sources": "Fairfax HCD ERAP; NHC Matrix", "status": "Active"}, {"id": "T-RT-09", "category": "Protection - Tenant Rights", "subcategory": "Eviction Diversion", "tool": "Pre-Filing Eviction Diversion / Mediation Program", "description": "Requires or strongly incentivizes landlord-tenant mediation and documented access to rental assistance BEFORE an eviction case can be filed in court. Distinct from ERAP because it alters court filing procedure, not just post-filing support.", "examples": "Philadelphia Eviction Diversion Program (mandatory pre-filing mediation + rental assistance screening; now permanent post-COVID); Cook County Early Resolution Program; Michigan statewide eviction diversion.", "authority": "Local ordinance + court rule coordination", "ami": "≤50% AMI typical applicant pool", "fairfax": "Fairfax HCD and General District Court could pilot a structured diversion program. Va. § 55.1-1245.1 requires landlords to provide rental-assistance notice. No state preemption blocks mediation pathways.", "dillon": "Local authority within Va. landlord-tenant framework; works alongside VRLTA and § 55.1-1245.1.", "sources": "Philadelphia EDP; PEW Charitable Trusts eviction diversion research; NCSC court-diversion guidance", "status": "Not adopted"}, {"id": "T-AD-01", "category": "Protection - Anti-Displacement", "subcategory": "TOPA", "tool": "Tenant Opportunity to Purchase Act (TOPA)", "description": "Gives tenants (individually or as organized association) the right of first offer/refusal to purchase their building when owner decides to sell; enables tenant-led preservation.", "examples": "Washington DC (since 1980, 40+ years); San Francisco COPA (2019, nonprofits); Minneapolis TOPA (adopted); Berkeley; Oakland.", "authority": "State or local enabling", "ami": "All tenants of covered buildings", "fairfax": "Virginia does not have TOPA enabling. Advocacy at General Assembly required. Fairfax Housing Element update could identify as state legislative priority.", "dillon": "Clear Dillon constraint — state action required.", "sources": "DC TOPA; SF COPA; LISC TOPA/COPA report (2023)", "status": "Not available (state)"}, {"id": "T-AD-02", "category": "Protection - Anti-Displacement", "subcategory": "COPA", "tool": "Community Opportunity to Purchase (COPA)", "description": "Variant of TOPA granting right of first offer/refusal to qualified nonprofit community developers (not tenants directly); lower implementation complexity.", "examples": "San Francisco COPA (April 2019, 3+ unit rental buildings); Berkeley; Oakland; Richmond (CA).", "authority": "State or local enabling", "ami": "Mission-driven acquisition, typically 30–80% AMI", "fairfax": "Virginia does not have COPA enabling. Fairfax Housing Element update could identify as state legislative priority, potentially more politically viable than TOPA.", "dillon": "Dillon constraint — state action required.", "sources": "SF COPA program; LISC TOPA/COPA report", "status": "Not available (state)"}, {"id": "T-AD-03", "category": "Protection - Anti-Displacement", "subcategory": "Relocation", "tool": "Enhanced Relocation Assistance", "description": "Requires landlords/developers to provide relocation assistance (typically 3–6 months rent + moving expenses) to displaced tenants in covered properties, particularly in redevelopment or substantial rehab.", "examples": "California AB 1482 (one month's rent); Los Angeles Rent Stabilization (substantial rehab); DC; Seattle Tenant Relocation Assistance Ordinance; Milwaukee Anti-Displacement Plan.", "authority": "Local ordinance (where state permits)", "ami": "Primarily ≤80% AMI tenants", "fairfax": "Fairfax's rezoning proffer practice routinely addresses relocation through Policy 6d framework. Housing Element update could formalize minimum relocation standards for redevelopment proffers (e.g., 4 months' rent plus moving assistance).", "dillon": "Proffer-based approach is within existing authority; direct ordinance may face VRLTA preemption review.", "sources": "Seattle TRAO; LA RSO Tenant Relocation", "status": "Active via proffers (Policy 6d)"}, {"id": "T-AD-04", "category": "Protection - Anti-Displacement", "subcategory": "Tenant Preference", "tool": "Affordable Housing Tenant Preference / Right to Return", "description": "Marketing/lottery preference for new affordable units reserved for current or former residents of the neighborhood, displacement-area ZIP codes, or demolished-unit occupants.", "examples": "San Jose Tenant Preference Program (2024); Portland N/NE Preference Policy; San Francisco COP preference.", "authority": "Local ordinance (subject to Fair Housing review)", "ami": "≤80% AMI typical", "fairfax": "Fairfax could apply tenant preference in Reston and Seven Corners preservation/redevelopment cases where displacement risk is documented. Must be carefully structured to comply with Affirmatively Furthering Fair Housing (AFFH).", "dillon": "Full local authority, subject to federal Fair Housing Act compliance.", "sources": "San Jose Tenant Preference (March 2024); Portland N/NE Preference", "status": "Not adopted"}, {"id": "T-AD-05", "category": "Protection - Anti-Displacement", "subcategory": "Condo Conversion", "tool": "Condominium Conversion Restrictions", "description": "Restrictions on converting rental apartments to condominiums, typically requiring tenant right of first refusal, relocation assistance, notice period, or majority tenant consent.", "examples": "Washington DC (Rental Housing Conversion and Sale Act); San Francisco (strongest, effective ban); Boston; Cambridge; Somerville 2025 ordinance (2-year notice + $14K–$18K relocation benefits).", "authority": "Local ordinance; Virginia has limited enabling", "ami": "Protects existing low/mod tenants", "fairfax": "Virginia has limited condo conversion regulation authority (Va. Code § 55.1-1900 et seq.). Fairfax Housing Element could evaluate scope of local conversion notice/tenant protection within existing state framework.", "dillon": "Some state preemption; limited local tailoring available.", "sources": "DC RHCSA; SF condo conversion", "status": "Partial"}, {"id": "T-AD-06", "category": "Protection - Anti-Displacement", "subcategory": "Anti-Speculation", "tool": "Anti-Speculation Taxes (Flip / Vacancy)", "description": "Taxes on short-term resale (anti-flip) or on vacant residential units; disincentivizes investor speculation and reduces holding of unoccupied housing.", "examples": "Vancouver BC Empty Homes Tax; Oakland Vacant Property Tax; DC Vacant Property Tax; San Francisco Empty Homes Tax.", "authority": "State or local tax code", "ami": "Market-wide effect", "fairfax": "Vacant property tax authority: Va. § 58.1-3220.1 allows higher rate on derelict structures. Housing Element update could evaluate whether Fairfax should use existing derelict/blighted classification more aggressively on habitable but intentionally vacant stock.", "dillon": "Partial Va. authority; transfer tax/flip tax would require state enabling.", "sources": "Va. Code § 58.1-3220.1; DC Vacant Property; SF EHT", "status": "Not adopted"}, {"id": "L-01", "category": "Land & Public Assets", "subcategory": "Land Disposition", "tool": "Publicly-Owned Land Disposition for Affordable Housing", "description": "Systematic review and disposition of surplus public land (school, library, county-owned parcels) for affordable housing; typically via land lease or below-market sale to mission-driven developer.", "examples": "Montgomery County Surplus Public Lands Initiative; King County Transit-Oriented Development site disposition; California AB 2561 Surplus Lands Act.", "authority": "Local authorization + procurement", "ami": "Varies; typically 30–80% AMI", "fairfax": "Fairfax could operationalize systematic review of county-owned land for affordable housing potential. Housing Element update should propose a Surplus Properties for Affordable Housing protocol, with annual inventory review.", "dillon": "Full local authority; procurement procedures apply.", "sources": "CA AB 2561; King County TOD", "status": "Partial (ad hoc)"}, {"id": "L-02", "category": "Land & Public Assets", "subcategory": "CLT", "tool": "Community Land Trust (CLT) Support", "description": "Land ownership held by a nonprofit trust, with homes leased on top under long-term ground lease (99 years typical); preserves permanent affordability on resale.", "examples": "Champlain Housing Trust (Burlington VT, largest, 3,000+ units); Oakland CLT; Irvine CLT (407 rental units); DC Douglass CLT; Maggie Walker CLT (Richmond VA); Houston Community Land Trust ($60M city allocation, 1,100-home 5-year target).", "authority": "Local capital + nonprofit capacity", "ami": "60–120% AMI typical for homeownership CLTs", "fairfax": "Fairfax has no operating CLT at scale. Housing Element update could propose seed capital and initial land contribution to establish a regional or county CLT, with a homeownership focus for 60–100% AMI households.", "dillon": "Full local authority.", "sources": "Champlain Housing Trust; Oakland CLT; Irvine CLT", "status": "Not adopted"}, {"id": "L-03", "category": "Land & Public Assets", "subcategory": "Land Bank", "tool": "Public Land Bank", "description": "Public entity authorized to acquire, hold, manage, and dispose of vacant, abandoned, or tax-delinquent properties; can prioritize transfer to affordable housing developers.", "examples": "Genesee County Land Bank (MI, pioneer); Philadelphia Land Bank; Cook County Land Bank Authority; NYC Land Bank; Houston LandBank; Metro Atlanta Land Bank.", "authority": "State enabling legislation (Va. has partial authority)", "ami": "All affordable tiers", "fairfax": "Virginia's land bank authority is limited (Va. Code § 15.2-7500 et seq.). Fairfax has low tax-delinquent vacancy but could pilot targeted acquisition of blighted or vacant parcels in Seven Corners or Route 1.", "dillon": "Va. Code § 15.2-7500 authorizes land banks; Fairfax should confirm applicability.", "sources": "Va. Code § 15.2-7500; Genesee County Land Bank", "status": "Not adopted"}, {"id": "L-04", "category": "Land & Public Assets", "subcategory": "Write-Down", "tool": "Land Write-Down for Affordable Housing", "description": "Below-market sale or long-term lease of public land to affordable housing developers, with deed restriction requiring affordability.", "examples": "Arlington County land contributions; Seattle OH land-use-for-housing; Cambridge AHT-supported land purchases.", "authority": "Local authorization + procurement exemption", "ami": "Targeted to LIHTC/deep affordability", "fairfax": "Fairfax can operationalize; should be paired with systematic surplus land inventory (L-01). FCRHA can hold and lease land to private developers under Title 36.", "dillon": "Full local authority; exemption from competitive procurement requires findings.", "sources": "Arlington affordable housing land contributions", "status": "Partial (ad hoc)"}, {"id": "L-05", "category": "Land & Public Assets", "subcategory": "Transfer of Development Rights", "tool": "Transfer of Development Rights (TDR) with Affordability Requirement", "description": "Allows density transfer from sending areas (historic, environmental) to receiving areas, with affordability linked to receiving-site density.", "examples": "Montgomery County TDR (one of nation's oldest); King County TDR; Seattle TDR; NYC Special Districts.", "authority": "Va. Code § 15.2-2316.1 enables TDR", "ami": "Attached at receiving sites (50–80% AMI)", "fairfax": "Fairfax has TDR authority but limited use. Housing Element update could explore TDR with affordability linkage in TSAs/activity centers.", "dillon": "Va. enabling exists under § 15.2-2316.1.", "sources": "Va. Code § 15.2-2316.1; MoCo TDR", "status": "Partial (limited)"}, {"id": "H-01", "category": "Homeownership", "subcategory": "Downpayment Assistance", "tool": "First-Time Homebuyer Down Payment / Closing Cost Assistance (DPA)", "description": "Direct forgivable or soft-second loans to income-eligible first-time homebuyers covering downpayment and closing costs; typically structured as zero-interest, zero-payment forgivable loans with a 10–15 year affordability/occupancy covenant.", "examples": "Durham NC DPA (up to $80,000 per buyer, forgivable 15-year, zero-interest); NC 1st Home Advantage (NCHFA $15K statewide); Montgomery County MD MPDU homeownership; Arlington Homebuyer Assistance Program; DC Home Purchase Assistance Program (HPAP).", "authority": "Local appropriation + HOME/CDBG federal + state HFA", "ami": "Typically ≤80% AMI (some programs extend to 120% AMI with tiered subsidy)", "fairfax": "Fairfax currently operates limited homeownership DPA (Moderate Income Direct Sales, first-time homebuyer programs through FCRHA). Housing Element update should evaluate scale-up: (a) recurring dedicated revenue stream; (b) unit price caps that reflect Tysons/Reston/Vienna reality; (c) coordination with WDU/ADU for-sale inventory; (d) dedicated set-aside for teachers, first responders, and county workforce.", "dillon": "Full local authority. No Dillon constraint.", "sources": "Durham NC $95M bond + DPA program; NCHFA 1st Home Advantage; Montgomery County MPDU; FCRHA homebuyer programs", "status": "Partial"}, {"id": "H-02", "category": "Homeownership", "subcategory": "Shared Equity", "tool": "Shared-Equity Homeownership / Deed-Restricted Resale Formula", "description": "Preserves long-term affordability of for-sale units by restricting resale price via a formula tied to AMI growth or CPI (not market appreciation), combined with deed restrictions, resale covenants, and buyer screening. Keeps units affordable across multiple ownership cycles.", "examples": "Montgomery County MD MPDU (deed-restricted resale formula, 30-year control); Champlain Housing Trust (Burlington VT, CLT model); Maggie Walker CLT (Richmond VA); Fannie Mae Shared Equity loan products (2022).", "authority": "Local covenant + stewardship program; optional CLT nonprofit partner", "ami": "Typically 50–120% AMI for-sale homeownership with stewardship preserving depth", "fairfax": "Fairfax ADU for-sale control periods are limited and resale discipline has historically been a gap. Housing Element update should: (1) adopt extended affordability control periods (30–50 years); (2) adopt a shared-equity resale formula tied to AMI growth; (3) designate or partner with a stewardship entity (FCRHA or new regional CLT); (4) integrate with H-01 DPA so purchases leverage both tools.", "dillon": "Full local authority under Va. Code § 15.2-2304 and condominium/covenant law.", "sources": "Montgomery County MPDU; Champlain Housing Trust; Loudoun County ADU 2024 extension; Fannie Mae Shared Equity", "status": "Partial"}, {"id": "H-03", "category": "Homeownership", "subcategory": "Counseling", "tool": "HUD-Certified Homebuyer Education & Counseling", "description": "Pre-purchase education, one-on-one counseling, credit repair, post-purchase default prevention, and foreclosure intervention services provided by HUD-certified housing counseling agencies; frequently a required precondition for DPA and shared-equity purchase.", "examples": "NeighborWorks America network; Durham Community Land Trustees counseling; Habitat affiliates; HomeFree USA; Atlanta Neighborhood Development Partnership.", "authority": "Federal HUD Housing Counseling grant + local match", "ami": "Cross-cutting, typically serving ≤80% AMI buyers", "fairfax": "Fairfax partners with HUD-certified counselors; coverage of first-generation homebuyer population and non-English-speaking residents is the operational gap. Housing Element update should formalize counseling as a tier-1 front door connected to DPA (H-01) and shared-equity (H-02) programs.", "dillon": "Full local authority.", "sources": "HUD Housing Counseling program; NeighborWorks; Fairfax HCD homebuyer resources", "status": "Active"}, {"id": "PA-01", "category": "Process & Administration", "subcategory": "Expedited Review", "tool": "Expedited/Priority Permitting for Affordable Housing", "description": "Formal expedited review process for qualifying 100% affordable or WDU-heavy projects, with defined timelines (e.g., 30 days for concept).", "examples": "San Diego Affordable In-Fill Housing Expedite Program (30-day permits); Austin SMART Housing; Portland IZ expedited review; NYC HPD priority processing.", "authority": "Local administrative authority", "ami": "All affordable projects", "fairfax": "Identified as an active Housing Element update initiative. Housing Element update should finalize specific timeline commitments, accountability metrics, and interagency routing.", "dillon": "Full local authority.", "sources": "San Diego Expedite; Austin SMART; Housing Element Update 2026", "status": "Emerging (initiative tracked)"}, {"id": "PA-02", "category": "Process & Administration", "subcategory": "Concurrent Review", "tool": "Concurrent/Parallel Agency Review", "description": "Multiple permitting agencies (planning, zoning, building, fire, transportation, schools) review submissions in parallel rather than sequentially, compressing overall timeline.", "examples": "Seattle Permit Innovation; Minneapolis concurrent review; many CA cities under SB 330 processing caps.", "authority": "Local administrative reorganization", "ami": "Benefits affordable and market-rate", "fairfax": "Housing Element update active initiative. Implementation detail: specific agency agreements and IT investment required for meaningful compression.", "dillon": "No Dillon issue.", "sources": "Housing Element Update 2026", "status": "Emerging (initiative tracked)"}, {"id": "PA-03", "category": "Process & Administration", "subcategory": "By-Right", "tool": "By-Right / Ministerial Approval Tracks", "description": "Projects meeting all objective standards approved administratively without discretionary review; removes entitlement risk.", "examples": "California SB 330 (housing acceleration); SB 35 streamlining (objective standards); Minneapolis administrative review; Oregon HB 2001.", "authority": "Local ordinance + objective standards", "ami": "Often tied to affordability set-aside", "fairfax": "Virginia generally uses legislative rezoning; shift to administrative approval via objective standards requires careful Dillon and charter compliance analysis. Most viable path: objective standards in existing WDU/TSA framework.", "dillon": "Requires careful Dillon analysis; limited VA precedent.", "sources": "CA SB 330; CA SB 35; OR HB 2001", "status": "Not adopted"}, {"id": "PA-04", "category": "Process & Administration", "subcategory": "LIHTC Alignment", "tool": "LIHTC Cycle Alignment / Local Preapproval", "description": "Local entitlement and funding decisions timed to LIHTC application deadlines; pre-approval of gap financing commitments before QAP submission.", "examples": "Fairfax Housing Element Update active initiative; MoCo HOC timing; Maryland RHW coordination.", "authority": "Local administrative calendar", "ami": "30–60% AMI LIHTC", "fairfax": "Housing Element update active initiative. Evaluate specific LIHTC preapproval window, staff resourcing, and decision tree for contingent commitments.", "dillon": "No Dillon issue.", "sources": "Housing Element Update 2026", "status": "Emerging (initiative tracked)"}, {"id": "PA-05", "category": "Process & Administration", "subcategory": "Special Exception", "tool": "Affordable Housing Special Exception Pathway", "description": "Streamlined special exception track dedicated to affordable housing projects, with standardized findings and conditions.", "examples": "Fairfax Housing Element Update active initiative; Arlington AHIF-funded project special exceptions.", "authority": "Local Zoning Ordinance amendment", "ami": "Typically 60% AMI or below", "fairfax": "Active Housing Element update initiative (potential special exception pathway under evaluation). Decision points: threshold unit count, affordability depth, standardized conditions, appeal mechanism.", "dillon": "Full local authority.", "sources": "Housing Element Update 2026; Arlington AHIF", "status": "Emerging (initiative tracked)"}, {"id": "PA-06", "category": "Process & Administration", "subcategory": "Expectations", "tool": "Affordable Housing Project Expectations Framework", "description": "Written guidelines articulating what the locality expects in affordable housing proposals (design, affordability depth, services, community engagement); provides clarity for applicants.", "examples": "Fairfax Housing Element Update active initiative; FCRHA project guidelines; MoCo HOC development guidelines.", "authority": "Administrative policy", "ami": "All affordable projects", "fairfax": "Active Housing Element update initiative. Decision points: how prescriptive, whether binding on private developers or guidance only, interaction with WDU/ADU baseline.", "dillon": "No Dillon issue.", "sources": "Housing Element Update 2026", "status": "Emerging (initiative tracked)"}, {"id": "PA-07", "category": "Process & Administration", "subcategory": "Needs Assessment", "tool": "Continuous Housing Needs Assessment", "description": "Regularly updated data-driven needs assessment (not just at plan update) with public dashboard; informs priorities and reveals gaps.", "examples": "Arlington Affordable Housing Dashboard; DC DHCD reporting; Montgomery County Annual Report; Albemarle Housing Albemarle (2021, 11,750-unit 2040 goal); Howard County MIHU HNA; King County ARCH regional needs analysis; Milwaukee Housing Affordability Report (2025, statutory); Asheville Affordable Housing Plan (2024, 41 strategies + data-driven city profile).", "authority": "Local administrative capacity", "ami": "Cross-cutting", "fairfax": "Aligns with 2026 Affordable Housing Dashboard (active initiative). Housing Element update should hardwire annual needs refresh and public reporting.", "dillon": "No Dillon issue.", "sources": "Arlington AH Dashboard; MoCo MPDU Annual Report", "status": "Active (Dashboard dev.)"}, {"id": "PA-08", "category": "Process & Administration", "subcategory": "Fair Housing", "tool": "Affirmatively Furthering Fair Housing (AFFH) Planning", "description": "Systematic analysis of impediments to fair housing choice and concrete actions to reverse segregation patterns; federal requirement for CDBG/HOME jurisdictions.", "examples": "HUD AFFH rule (2015, rescinded, partially restored); California AB 686 (state-level AFFH); Montgomery County AI.", "authority": "Federal + local implementation", "ami": "Protected class / disparate impact", "fairfax": "Fairfax completes Analysis of Impediments. Housing Element update should tie AFFH findings directly to geographic distribution of subsidized stock, WDU/ADU performance in high-opportunity areas, and Policy 6d preservation siting.", "dillon": "Federal requirement; local implementation authority.", "sources": "HUD AFFH; CA AB 686; Fairfax AI", "status": "Active"}, {"id": "PA-09", "category": "Process & Administration", "subcategory": "Co-location", "tool": "Co-location of Affordable Housing with Public Facilities", "description": "Pairs affordable housing development with public facility construction on the same site — schools, libraries, community centers, fire stations, parks — leveraging public land and a single vertical capital project to produce both.", "examples": "Montgomery County MD Co-location of Public Facilities Study (2018); Arlington County Unity Homes (Ballston, affordable housing + daycare + faith congregation); NYC SPARC (library + housing prototypes); Seattle Capitol Hill Station TOD; Los Angeles Community College District 'community campus' model.", "authority": "Local interagency MOU + capital budget coordination", "ami": "Typically 30–80% AMI; depth varies with subsidy stack", "fairfax": "Fairfax County has the right ingredients — FCPS capital plan, library system, Park Authority, and FCRHA — but lacks a formal interagency co-location protocol. Housing Element update should: (1) establish a co-location working group; (2) identify candidate sites in 10-year CIP; (3) adopt a Board policy directing co-location as the default evaluation; (4) sequence with L-01 surplus land disposition.", "dillon": "Full local authority. No Dillon constraint.", "sources": "Montgomery County Co-location Study (2018); Arlington Unity Homes; NYC SPARC", "status": "Emerging"}, {"id": "PA-10", "category": "Process & Administration", "subcategory": "Equity", "tool": "Racial Equity Framework / AFFH in Housing Element", "description": "Formal adoption of a racial equity analytical framework in the Housing Element, with displacement-risk mapping, community preference policies, disaggregated outcome tracking by race/ethnicity, and explicit tie-in to land-use and investment decisions.", "examples": "California AB 686 AFFH (state-mandated in housing elements); Seattle Community Preference Policy; Portland N/NE Preference Policy; Minneapolis 2040 equity framing; HUD AFFH Rule (restored 2023); King County AFFH plan.", "authority": "Local policy; HUD AFFH obligation applies to entitlement jurisdictions", "ami": "Cross-cutting; depth tiers drive implementation", "fairfax": "Fairfax has historical segregation patterns and ongoing displacement pressure in specific census tracts (Route 1, Seven Corners, Bailey's Crossroads). Housing Element update should: (1) embed AFFH analytical lens explicitly; (2) include disaggregated needs data and displacement-risk mapping by tract; (3) evaluate a narrowly drafted community-preference policy tied to displacement history (fair-housing counsel required); (4) align with 2026 Affordable Housing Dashboard public reporting.", "dillon": "Community-preference policies require careful fair-housing legal analysis; AFFH reporting is required of HUD entitlement jurisdictions.", "sources": "Cal. Gov. Code § 8899.50 (AB 686); Seattle Community Preference; Portland N/NE Preference Policy; HUD AFFH Rule (2023)", "status": "Partial"}, {"id": "PA-11", "category": "Process & Administration", "subcategory": "Anti-Displacement", "tool": "Standalone Anti-Displacement Plan", "description": "A dedicated, cross-departmental anti-displacement strategy document combining tenant protections, acquisition preservation, financial assistance, small-business displacement, and geographic displacement-risk monitoring.", "examples": "Milwaukee Anti-Displacement Plan (integrated with 2025 Housing Element); Seattle Equitable Development Initiative; Portland Displacement Risk Analysis; Austin Uprooted study; Minneapolis displacement framework.", "authority": "Local administrative/policy authority", "ami": "Cross-cutting; targets ≤80% AMI geographies", "fairfax": "Fairfax has active displacement pressure in Route 1, Seven Corners, and Bailey's Crossroads but no consolidated anti-displacement plan. Housing Element update should consider either (a) embedding a strengthened anti-displacement chapter, or (b) directing HCD/DPD to produce a companion Anti-Displacement Plan — Milwaukee's paired model is instructive.", "dillon": "Full local authority.", "sources": "Milwaukee Anti-Displacement Plan; Seattle EDI; Austin Uprooted; Portland DRA", "status": "Not adopted"}, {"id": "PA-12", "category": "Process & Administration", "subcategory": "Place-Based Plan", "tool": "Complete Communities / Neighborhood-Scale Action Plan", "description": "Neighborhood-scale integrated plan combining housing, public realm, economic development, infrastructure, and equity into a single implementation document with explicit deliverables, sponsor agency assignments, and multi-year capital sequencing.", "examples": "Houston Complete Communities (Acres Homes Action Plan 2018, 10-neighborhood rollout); San Diego Complete Communities; Atlanta Plan A neighborhood-tier implementation; Baltimore INSPIRE; Chicago INVEST South/West.", "authority": "Local administrative; uses existing planning and CIP authority", "ami": "Cross-cutting", "fairfax": "Fairfax's area plan volumes and TSA plans already provide much of this function, but Route 1, Seven Corners, Annandale, and Mount Vernon areas could benefit from an explicit Complete Communities-style action plan with time-bound deliverables and equity-outcome tracking.", "dillon": "Full local authority.", "sources": "Houston Complete Communities (Acres Homes); San Diego Complete Communities; Atlanta Plan A", "status": "Emerging (initiative tracked)"}], "jurisdictions": [{"name": "Montgomery County, MD", "region": "DMV", "tools": "MPDU (12.5–15%), HOC Housing Production Fund ($100M revolving), TDR (oldest US program), Preservation Inventory, surplus public lands initiative", "ids": "P-RZ-01, P-FN-02, L-05, PR-03, L-01"}, {"name": "Arlington County, VA", "region": "DMV", "tools": "IZ (with buyout), AHIF, Affordable Housing Master Plan 2015 (in update), Affordable Housing Dashboard, EHO (missing middle)", "ids": "P-RZ-01, P-FN-01, PA-07, P-RZ-07"}, {"name": "City of Alexandria, VA", "region": "DMV", "tools": "RMF Zone (bonus FAR for ~40% AMI avg), Housing 2040 (in update), Zoning for Housing (office conversion, expanded multifamily)", "ids": "P-RZ-02, P-RZ-08"}, {"name": "Prince George's County, MD", "region": "DMV", "tools": "Housing Opportunity for All / Comprehensive Housing Strategy (48 actions, 2019, 10-year plan); Housing Investment Trust Fund + Section 108 leverage; right-of-first-refusal preservation; Housing Production Program (5,399 affordable units 2020–2024)", "ids": "PA-07, P-FN-01, PR-02, P-FN-03"}, {"name": "Loudoun County, VA", "region": "DMV", "tools": "ADU Program (extended control periods to 30/50 years in 2024), Unmet Housing Needs Strategic Plan (2021, goal 20% attainable)", "ids": "P-RZ-01, PA-07"}, {"name": "Prince William County, VA", "region": "DMV", "tools": "AfDU Ordinance (voluntary, June 2025; 80% AMI with 50% AMI incentive), $31M Housing Fund by FY29", "ids": "P-RZ-02, P-FN-01"}, {"name": "Washington, DC", "region": "DMV", "tools": "IZ (8–12.5%, 50–80% AMI), Housing Production Trust Fund, Preservation Fund, TOPA (since 1980), DOPA, Housing in Downtown Abatement", "ids": "P-RZ-01, P-FN-01, PR-01, T-AD-01, P-RZ-08"}, {"name": "City of Seattle", "region": "National", "tools": "Mandatory Housing Affordability (MHA, performance + fee), Social Housing Developer (2026), Multifamily Tax Exemption (MFTE), Tenant Relocation Assistance", "ids": "P-RZ-01, P-FN-02, P-FN-05, T-AD-03"}, {"name": "City of Portland, OR", "region": "National", "tools": "Inclusionary Housing (2016, in calibration), Housing Bonus Alignment Project, 10-yr MULTE tax exemption", "ids": "P-RZ-01, P-FN-05, P-RZ-02"}, {"name": "City of Minneapolis", "region": "National", "tools": "Minneapolis 2040 (eliminated SFD zoning, first big city), IZ for 20+ units, parking elimination, TOPA adopted", "ids": "P-RZ-03, P-RZ-01, P-RZ-06, T-AD-01"}, {"name": "City of Austin", "region": "National", "tools": "Strategic Housing Blueprint (2017), density bonus programs (46K+ units), $350M 2022 GO bond, SMART Housing fee waivers", "ids": "P-RZ-02, P-FN-09, P-FN-08"}, {"name": "City & County of Denver", "region": "National", "tools": "Expanding Housing Affordability (EHA) — mandatory IZ 8–15%, linkage fee for sub-10-unit developments", "ids": "P-RZ-01, P-FN-04"}, {"name": "City of Boston", "region": "National", "tools": "Inclusionary Development Policy, commercial linkage fee ($15.39/SF 2023), Acquisition Opportunity Program (1,000+ units preserved), Downtown Residential Conversion PILOT", "ids": "P-RZ-01, P-FN-04, PR-01, P-RZ-08"}, {"name": "City of Cambridge, MA", "region": "National", "tools": "Affordable Housing Overlay (2020, 100% affordable by-right), Affordable Housing Trust ($40M FY25), commercial linkage fee, rent control (among last in MA)", "ids": "P-RZ-10, P-FN-01, P-FN-04, T-RT-04"}, {"name": "City of San Diego", "region": "California", "tools": "Housing Element 2021–2029, Affordable In-Fill Expedite Program (30-day permits), SRO encouragement, Complete Communities TOD", "ids": "PA-01, P-RZ-11, P-RZ-05"}, {"name": "City of San Jose", "region": "California", "tools": "Housing Element 6th cycle, HERO Overlay (North San Jose), Tenant Preference Program (2024), T/L Resource Centers", "ids": "P-RZ-10, T-AD-04, T-RT-08"}, {"name": "Sacramento (city/county)", "region": "California", "tools": "Housing Element 6th cycle, SB 10 ministerial near transit, TOD overlay", "ids": "P-RZ-05, PA-03"}, {"name": "State of California", "region": "California", "tools": "SB 9 (upzoning duplex by-right), SB 10 (10-unit by-right near transit), AB 2011 (100% affordable + mixed income on commercial corridors), SB 330 housing acceleration, AB 686 AFFH", "ids": "P-RZ-03, P-RZ-10, PA-03, PA-08"}, {"name": "City of Burlington, VT / Champlain Housing Trust", "region": "Cross-referenced", "tools": "Largest CLT in US (3,000+ units); 8% of Burlington households", "ids": "L-02"}, {"name": "New York City", "region": "Cross-referenced", "tools": "Right to Counsel (first in nation, 84% success); 421-a/485-x tax abatement; Office conversion programs; City of Yes for Housing Opportunity (MIH, R11/R12 high-density districts); Manhattan Plan (100,000 new homes in Manhattan by 2035)", "ids": "T-RT-03, P-FN-05, P-RZ-08, P-RZ-01, P-RZ-05"}, {"name": "City of Charlottesville, VA", "region": "Virginia", "tools": "2023 Zoning Rewrite (eliminated SFD, parking minimums, legalized SROs, adopted Dec 18 2023); new IZ requiring 10% affordable in 10+ unit developments", "ids": "P-RZ-03, P-RZ-06, P-RZ-01, P-RZ-07"}, {"name": "Albemarle County, VA", "region": "Virginia", "tools": "Housing Albemarle (July 2021; 11,750-unit goal by 2040); 20% at 60% AMI requirement for rezonings (March 2024); § 2.4.5 density bonus (30% for 15% affordable); 30-yr rental / 40-yr for-sale affordability periods", "ids": "PA-07, P-RZ-01, P-RZ-02"}, {"name": "City of Richmond, VA", "region": "Virginia", "tools": "Affordable Housing Trust Fund (since 2004, $10M annual CIP — $9M to 8 projects in 2025); Maggie Walker CLT (2016)", "ids": "P-FN-01, L-02"}, {"name": "King County, WA", "region": "National", "tools": "ARCH (A Regional Coalition for Housing) — 10,000+ affordable homes in East King County; $4.6M 2025 Housing Trust Fund investment supporting 500 units", "ids": "P-FN-11, PA-07"}, {"name": "Howard County, MD", "region": "DMV", "tools": "Moderate Income Housing Unit (MIHU) program (10–15% set-aside; 80% AMI for-sale / 60% AMI rental); Housing Opportunities Master Plan", "ids": "P-RZ-01, PA-07"}, {"name": "City of Somerville, MA", "region": "National", "tools": "IZ at 20% (highest US, 2019); condo conversion ordinance with 2-year notice + $14K–$18K relocation (Oct 2025); 100% affordable overlay", "ids": "P-RZ-01, T-AD-05, P-RZ-10"}, {"name": "City & County of San Francisco", "region": "California", "tools": "COPA Community Opportunity to Purchase (April 2019, 3+ unit buildings); Small Sites Program (2014); effective condo conversion ban; Empty Homes Tax", "ids": "T-AD-02, PR-01, T-AD-05, T-AD-06"}, {"name": "City of Toledo, OH", "region": "National", "tools": "Forward Toledo Plan; $4M HUD PRO Housing grant (2025); Toledo Together 10-Year Action Plan for housing", "ids": "PA-07, P-FN-03"}, {"name": "City of Plano, TX", "region": "National", "tools": "Comprehensive Plan \"Plano Tomorrow\" (litigated 2019, revised); limited AH production programs due to Texas constraints", "ids": "PA-07"}, {"name": "City of Phoenix, AZ", "region": "National", "tools": "Housing Phoenix Plan (50K units by 2030); Middle Housing Overlay District (Nov 2025, response to AZ HB 2721 mandate on cities >75K)", "ids": "PA-07, P-RZ-07"}, {"name": "City of Chicago, IL", "region": "National", "tools": "Affordable Requirements Ordinance (ARO 2021, 10% at 60% AMI weighted avg); ADU Ordinance (2024 streamlining); Connected Communities / ETOD Ordinance", "ids": "P-RZ-01, P-RZ-04, P-RZ-05, P-FN-12"}, {"name": "City of Philadelphia, PA", "region": "National", "tools": "Eviction Diversion Program (permanent post-COVID; mandatory pre-filing mediation + rental assistance); Turn the Key Program ($75K+ buyer savings); Philadelphia Land Bank", "ids": "T-RT-09, P-FN-08, L-03, P-FN-01"}, {"name": "Salt Lake City, UT", "region": "National", "tools": "Affordable Housing Incentives (by-right density + parking relief, eff. April 30 2024); Community Reinvestment Agency (10–20% of tax increment allocated to affordable housing)", "ids": "P-RZ-10, P-FN-12"}, {"name": "City of Durham, NC", "region": "National", "tools": "2023 Comprehensive Plan; Expanding Housing Choices (EHC, 2019 — duplex/triplex/townhouse + ADU liberalization citywide); $95M 2019 Affordable Housing Bond + re-launched Down Payment Assistance (up to $80K/buyer, forgivable 15-yr); racial equity framing", "ids": "P-RZ-03, P-RZ-04, P-RZ-07, P-FN-01, P-FN-09, H-01, PA-10"}, {"name": "Wake County, NC", "region": "National", "tools": "20-Year Affordable Housing Plan (2017, updated via 2025–2030 Consolidated Plan); Preservation Fund; targeted land-use + zoning tools; $18M 2024 production/preservation investment", "ids": "PA-07, P-FN-01, PR-01"}, {"name": "Nashville – Davidson County, TN", "region": "National", "tools": "NashvilleNext Comprehensive Plan (2015–2040); Barnes Housing Trust Fund ($191M+ invested, 6,000+ units); Unified Housing Strategy (2025); public land activation. State preempts inclusionary zoning (TN 2018 law).", "ids": "P-FN-01, L-01, PA-07"}, {"name": "City of Atlanta, GA", "region": "National", "tools": "Plan A Comprehensive Development Plan; Inclusionary Zoning Ordinance (2018, BeltLine TAD + Westside); Atlanta BeltLine affordable housing goal (5,600 units by 2030, 74% achieved by 2024); Metro Atlanta Land Bank", "ids": "P-RZ-01, P-RZ-05, L-03, PA-10"}, {"name": "City of Miami, FL", "region": "National", "tools": "Affordable Housing Master Plan; Miami 21 form-based code; inclusionary density bonus (double-density for 30% at 60% AMI adjacent to urban core); AHC certification program; Florida state preemption of inclusionary zoning", "ids": "P-RZ-01, P-RZ-02, PR-04, PA-07"}, {"name": "City of Raleigh, NC", "region": "National", "tools": "2030 Comprehensive Plan; Affordable Housing Plan A Home for Every Neighbor (July 2025); $80M affordable housing bond (1,345-unit goal by 2030); Bond-Funded Inclusionary Zoning (50% density bonus, 20% of extra units affordable)", "ids": "PA-07, P-FN-09, P-RZ-02, P-RZ-01"}, {"name": "City of Asheville, NC", "region": "National", "tools": "Affordable Housing Plan 2024 (5 goals, 41 strategies, BIPOC-first framing); Housing Trust Fund (~25 yrs old); Land Use Incentive Grants (LUIG — property tax increment rebate); affordable housing bond program", "ids": "PA-07, P-FN-01, P-FN-05, P-FN-09, PA-10"}, {"name": "City of Milwaukee, WI", "region": "National", "tools": "2025 Housing Element (adopted July 15 2025); Growing MKE Plan; Anti-Displacement Plan; Collective Affordable Housing Strategic Plan; Housing Affordability Report (statutory, 2025); 7 priorities including homeownership and anti-displacement", "ids": "PA-07, PA-11, T-AD-03, H-01"}, {"name": "City of Gainesville, FL", "region": "National", "tools": "Housing Action Plan (2020); Housing Equity Plan + Imagine GNV 2030 (racial equity in comp plan); Communities that Care CLT (emerging); GNV RISE (paused over displacement concerns) — case study in equity-informed community process", "ids": "L-02, PA-10, PA-07"}, {"name": "City of Houston, TX", "region": "National", "tools": "Complete Communities initiative (Acres Home 2018 Action Plan + 10 neighborhood rollouts); Houston Community Land Trust ($60M city allocation, 1,100-home 5-year target); Houston LandBank; New Homes for Acres Homes (47 SFH / 15 affordable); state preempts tenant protections (Texas)", "ids": "PA-12, L-02, L-03, H-01"}, {"name": "Manhattan (New York City)", "region": "Cross-referenced", "tools": "Manhattan Plan (December 2025, 100,000 new homes in borough over the next decade); paired with City of Yes for Housing Opportunity (Mandatory Inclusionary Housing); 125th Street TOD (~700 homes, ~170 permanently affordable); Midtown South Mixed-Use Plan (nearly 10,000 homes)", "ids": "P-RZ-01, P-RZ-05, P-RZ-08, L-01"}]};
+
+// ─── CONFIG ────────────────────────────────────────────
+const CAT_COLORS = {
+  'Production - Regulatory/Zoning': 'var(--cat-rz)',
+  'Production - Financing':         'var(--cat-fn)',
+  'Preservation':                   'var(--cat-pres)',
+  'Protection - Tenant Rights':     'var(--cat-tr)',
+  'Protection - Anti-Displacement': 'var(--cat-ad)',
+  'Land & Public Assets':           'var(--cat-land)',
+  'Process & Administration':       'var(--cat-proc)',
+  'Homeownership':                  'var(--cat-home)'
+};
+
+const REGION_COLORS = {
+  'DMV':            { bg: '#dbeafe', color: '#1e40af' },
+  'National':       { bg: '#d1fae5', color: '#065f46' },
+  'California':     { bg: '#ede9fe', color: '#5b21b6' },
+  'Virginia':       { bg: '#fee2e2', color: '#991b1b' },
+  'Cross-referenced':{ bg: '#f3f4f6', color: '#374151' }
+};
+
+// ─── STATE ─────────────────────────────────────────────
+let activeCat    = 'all';
+let activeSt     = 'all';
+let activeAmi    = 'all';
+let activeRegion = 'all';
+let searchQ      = '';
+let expandedId   = null;
+let currentSort  = 'id';
+let activePage   = 'policies';
+
+// ─── STATUS HELPERS ────────────────────────────────────
+function statusInfo(s) {
+  const sl = s.toLowerCase();
+  if (sl.includes('active'))   return { cls:'active',   bg:'var(--s-active-bg)',   color:'var(--s-active)',   label:'Active' };
+  if (sl.includes('emerging')) return { cls:'emerging', bg:'var(--s-emerging-bg)', color:'var(--s-emerging)', label:'Emerging' };
+  if (sl.includes('partial'))  return { cls:'partial',  bg:'var(--s-partial-bg)',  color:'var(--s-partial)',  label:'Partial' };
+  if (sl.includes('not available') || sl.includes('blocked') || sl.includes('preemption') || sl.includes('state'))
+    return { cls:'blocked', bg:'var(--s-blocked-bg)', color:'var(--s-blocked)', label:'State-Blocked' };
+  return { cls:'not-adopted', bg:'var(--s-not-bg)', color:'var(--s-not)', label:'Not Adopted' };
+}
+
+function statusCls(s) { return statusInfo(s).cls; }
+
+function matchAmi(ami, filter) {
+  if (filter === 'all') return true;
+  const a = ami.toLowerCase();
+  if (filter === '30')     return a.includes('30') || a.includes('50') || a.includes('extremely') || a.includes('deep');
+  if (filter === '60')     return a.includes('60') || a.includes('80') || a.includes('50') || a.includes('moderate');
+  if (filter === 'market') return a.includes('market') || a.includes('all income') || a.includes('cross');
+  return true;
+}
+
+function hl(text, q) {
+  if (!q) return text;
+  const re = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+  return text.replace(re, '<span class="hl">$1</span>');
+}
+
+// ─── FILTER & SORT ─────────────────────────────────────
+function filtered() {
+  let list = [...DATA.policies];
+  if (activeCat !== 'all') list = list.filter(p => p.category === activeCat);
+  if (activeSt  !== 'all') list = list.filter(p => statusCls(p.status) === activeSt);
+  if (activeAmi !== 'all') list = list.filter(p => matchAmi(p.ami, activeAmi));
+  if (searchQ) {
+    const q = searchQ.toLowerCase();
+    list = list.filter(p =>
+      p.tool.toLowerCase().includes(q) ||
+      p.description.toLowerCase().includes(q) ||
+      p.examples.toLowerCase().includes(q) ||
+      p.fairfax.toLowerCase().includes(q) ||
+      p.id.toLowerCase().includes(q) ||
+      p.subcategory.toLowerCase().includes(q) ||
+      p.sources.toLowerCase().includes(q)
+    );
+  }
+  if (currentSort === 'status') {
+    const ord = ['active','emerging','partial','not-adopted','blocked'];
+    list.sort((a,b) => ord.indexOf(statusCls(a.status)) - ord.indexOf(statusCls(b.status)));
+  } else if (currentSort === 'category') {
+    list.sort((a,b) => a.category.localeCompare(b.category));
+  }
+  return list;
+}
+
+// ─── RENDER CARDS ──────────────────────────────────────
+function renderCards() {
+  const list = filtered();
+  const q    = searchQ.toLowerCase();
+  const container = document.getElementById('cardsList');
+
+  document.getElementById('results-count').innerHTML = `Showing <strong>${list.length}</strong> of ${DATA.policies.length} policy tools`;
+  document.getElementById('badge-policies').textContent = list.length;
+
+  if (!list.length) {
+    container.innerHTML = '<div class="empty-state"><span class="big">∅</span><p>No policies match your current filters.<br>Try broadening your search or clearing a filter.</p></div>';
+    return;
+  }
+
+  container.innerHTML = list.map(p => {
+    const si   = statusInfo(p.status);
+    const color = CAT_COLORS[p.category] || '#888';
+    const open  = expandedId === p.id;
+    const catShort = p.category.replace('Production - ','').replace('Protection - ','');
+    const amiShort = p.ami.length > 32 ? p.ami.substring(0,32)+'…' : p.ami;
+
+    return `
+    <div class="pcard ${open?'open':''}" id="card-${p.id}" onclick="toggleCard('${p.id}')">
+      <div class="pcard-header">
+        <div class="pcard-bar" style="background:${color}"></div>
+        <div class="pcard-id-col">
+          <div class="pcard-id">${p.id}</div>
+          <div class="pcard-cat-tag">${catShort}</div>
+        </div>
+        <div class="pcard-body">
+          <div class="pcard-title">${hl(p.tool, q)}</div>
+          <div class="pcard-subtitle">${p.category} &middot; ${p.subcategory}</div>
+        </div>
+        <div class="pcard-meta">
+          <span class="sbadge" style="background:${si.bg};color:${si.color}">${si.label}</span>
+          <span class="ami-chip">${amiShort}</span>
+        </div>
+        <div class="expand-arrow">›</div>
+      </div>
+      <div class="pcard-detail">
+        <div class="detail-body">
+          <div class="detail-block full">
+            <div class="detail-lbl"><span class="detail-lbl-icon">📋</span> What it is</div>
+            <div class="detail-val">${hl(p.description, q)}</div>
+          </div>
+          <div class="detail-block">
+            <div class="detail-lbl"><span class="detail-lbl-icon">🏙</span> Used in other jurisdictions</div>
+            <div class="detail-val" style="font-size:13px">${hl(p.examples, q)}</div>
+          </div>
+          <div class="detail-block">
+            <div class="detail-lbl"><span class="detail-lbl-icon">⚖️</span> Legal authority</div>
+            <div class="detail-val" style="font-size:13px">${p.authority}</div>
+          </div>
+          <div class="detail-block full">
+            <div class="detail-lbl"><span class="detail-lbl-icon">🏛</span> Fairfax context &amp; Housing Element relevance</div>
+            <div class="fairfax-callout">${hl(p.fairfax, q)}</div>
+          </div>
+          <div class="detail-block">
+            <div class="detail-lbl"><span class="detail-lbl-icon">📜</span> Virginia Dillon Rule notes</div>
+            <div class="dillon-callout">${p.dillon}</div>
+          </div>
+          <div class="detail-block">
+            <div class="detail-lbl"><span class="detail-lbl-icon">📚</span> Key sources</div>
+            <div class="sources-text">${p.sources}</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─── RENDER JURISDICTIONS ──────────────────────────────
+function renderJx() {
+  let list = [...DATA.jurisdictions];
+  if (activeRegion !== 'all') list = list.filter(j => j.region === activeRegion);
+
+  const rc = REGION_COLORS[activeRegion] || { bg:'#f3f4f6', color:'#374151' };
+
+  document.getElementById('jxGrid').innerHTML = list.map(j => {
+    const rCol = REGION_COLORS[j.region] || { bg:'#f3f4f6', color:'#374151' };
+    const ids  = j.ids.split(',').map(s => s.trim()).filter(Boolean);
+    return `
+    <div class="jx-card">
+      <div class="jx-top">
+        <div class="jx-name">${j.name}</div>
+        <span class="jx-region-chip" style="background:${rCol.bg};color:${rCol.color}">${j.region}</span>
+      </div>
+      <div class="jx-tools">${j.tools}</div>
+      <div class="jx-ids">
+        ${ids.map(id => `<span class="jx-id-chip" onclick="jumpToPolicy('${id}',event)">${id}</span>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─── RENDER SUMMARY ────────────────────────────────────
+function renderSummary() {
+  const GROUPS = [
+    { label:'Active in Fairfax today',             bg:'var(--s-active-bg)',   color:'var(--s-active)',   cls:['active'] },
+    { label:'Emerging — in planning',              bg:'var(--s-emerging-bg)', color:'var(--s-emerging)', cls:['emerging'] },
+    { label:'Partial / informal use',              bg:'var(--s-partial-bg)',  color:'var(--s-partial)',  cls:['partial'] },
+    { label:'Not adopted (locally actionable)',    bg:'var(--s-not-bg)',      color:'var(--s-not)',      cls:['not-adopted'] },
+    { label:'Blocked by state law / Dillon Rule',  bg:'var(--s-blocked-bg)', color:'var(--s-blocked)', cls:['blocked'] },
+  ];
+  document.getElementById('summaryGrid').innerHTML = GROUPS.map(g => {
+    const tools = DATA.policies.filter(p => g.cls.includes(statusCls(p.status)));
+    return `
+    <div class="scard">
+      <div class="scard-head" style="background:${g.bg};color:${g.color}">
+        <span>${g.label}</span>
+        <span class="scard-count">${tools.length}</span>
+      </div>
+      <div class="scard-body">
+        <ul class="scard-list">
+          ${tools.map(t => `<li onclick="jumpToPolicy('${t.id}',event)">
+            <span class="tid">${t.id}</span>
+            <span>${t.tool}</span>
+          </li>`).join('')}
+        </ul>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─── INTERACTIONS ──────────────────────────────────────
+function toggleCard(id) {
+  expandedId = expandedId === id ? null : id;
+  renderCards();
+  if (expandedId) {
+    setTimeout(() => {
+      const el = document.getElementById('card-' + expandedId);
+      if (el) el.scrollIntoView({ behavior:'smooth', block:'nearest' });
+    }, 60);
+  }
+}
+
+function jumpToPolicy(id, e) {
+  if (e) e.stopPropagation();
+  switchPage('policies');
+  expandedId   = id;
+  activeCat    = 'all';
+  activeSt     = 'all';
+  activeAmi    = 'all';
+  searchQ      = '';
+  document.getElementById('searchInput').value = '';
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === 'all'));
+  document.querySelectorAll('.status-filter-btn[data-status]').forEach(b => b.classList.toggle('active', b.dataset.status === 'all'));
+  renderCards();
+  setTimeout(() => {
+    const el = document.getElementById('card-' + id);
+    if (el) el.scrollIntoView({ behavior:'smooth', block:'center' });
+  }, 120);
+}
+
+function switchPage(page) {
+  activePage = page;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.tabnav-btn').forEach(b => b.classList.toggle('active', b.dataset.page === page));
+}
+
+// ─── INIT STATS ────────────────────────────────────────
+function initStats() {
+  const activeN = DATA.policies.filter(p => statusCls(p.status) === 'active').length;
+  document.getElementById('stat-active').textContent = activeN;
+}
+
+// ─── EVENT LISTENERS ───────────────────────────────────
+document.getElementById('searchInput').addEventListener('input', e => {
+  searchQ = e.target.value.trim();
+  renderCards();
+});
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    activeCat = btn.dataset.cat;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderCards();
+  });
+});
+
+document.querySelectorAll('.status-filter-btn[data-status]').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    activeSt = btn.dataset.status;
+    document.querySelectorAll('.status-filter-btn[data-status]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderCards();
+  });
+});
+
+document.querySelectorAll('.status-filter-btn[data-ami]').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    activeAmi = btn.dataset.ami;
+    document.querySelectorAll('.status-filter-btn[data-ami]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderCards();
+  });
+});
+
+document.querySelectorAll('.tabnav-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchPage(btn.dataset.page));
+});
+
+document.querySelectorAll('.jx-region-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    activeRegion = btn.dataset.region;
+    document.querySelectorAll('.jx-region-btn').forEach(b => b.classList.toggle('active', b === btn));
+    renderJx();
+  });
+});
+
+document.getElementById('sort-select').addEventListener('change', e => {
+  currentSort = e.target.value;
+  renderCards();
+});
+
+// ─── BOOT ──────────────────────────────────────────────
+initStats();
+renderCards();
+renderJx();
+renderSummary();
+</script>
+</body>
+</html>
